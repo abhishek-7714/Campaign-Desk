@@ -10,16 +10,19 @@ import { Avatar, Badge, TextField } from '@/components/ui-bits';
 import { PageHeader } from '@/components/layout/Shell';
 import { Bar, Empty, Pill, TaskCard } from '@/components/viz/Cards';
 import { useStore } from '@/state/store';
+import { Stat, SourceBadge } from '@/components/shared';
+import { deliveryTone } from '@/domain/performance';
+import { fmtINR, fmtNum, fmtPct } from '@/domain/money';
 import WorkflowProgress from './WorkflowProgress';
 import AgreementTab from './AgreementTab';
 import CloseoutTab from './CloseoutTab';
 import ActivityList from './ActivityTab';
 
-const TABS = ['Overview', 'Workflow', 'Agreement', 'Tasks', 'Activity', 'Closeout'] as const;
+const TABS = ['Overview', 'Workflow', 'Agreement', 'Tasks', 'Performance', 'Activity', 'Closeout'] as const;
 type Tab = (typeof TABS)[number];
 
 function PropertiesPanel({ c }: { c: Campaign }) {
-  const { updateCampaign, notify } = useStore();
+  const { updateCampaign, notify, programmeById } = useStore();
   const [owner, setOwner] = useState(c.owner);
   const [creator, setCreator] = useState(c.creator);
   const [due, setDue] = useState(c.dueDate);
@@ -45,6 +48,9 @@ function PropertiesPanel({ c }: { c: Campaign }) {
           </select>
         </div>
         <div className="side-fact"><span>Brand</span><strong>{c.brand}</strong></div>
+        {c.programmeId && <div className="side-fact"><span>Campaign</span><strong><Link href={`/programmes/${c.programmeId}?tab=performance`} className="textlink">{programmeById(c.programmeId)?.name ?? 'Open campaign'}</Link></strong></div>}
+        {c.creatorId && <div className="side-fact"><span>Profile</span><strong><Link href={`/marketplace/${c.creatorId}`} className="textlink">View creator</Link></strong></div>}
+        {c.code && <div className="side-fact"><span>Discount code</span><strong className="mono">{c.code}</strong></div>}
         <div className="side-fact"><span>Publication date</span><strong>{fmtDate(c.publicationDate)}</strong></div>
         <div className="side-fact"><span>Terms</span><strong className={missingTerms(c) ? 'missing' : 'confirmed'}>{missingTerms(c) ? `${missingTerms(c)} to resolve` : 'Complete'}</strong></div>
       </div>
@@ -135,7 +141,7 @@ function Overview({ c }: { c: Campaign }) {
     if (next !== c.nextAction) notes.push(`Next action set: ${next}`);
     updateCampaign(c.id, { blocker: blocker.trim(), nextAction: next.trim() }, notes.join('; '));
   };
-  const F = ({ l, children }: { l: string; children: string }) => <div className="field"><label>{l}</label><div className="field-value">{children || '—'}</div></div>;
+  const F = ({ l, children }: { l: string; children: string }) => <div className="field"><label>{l}</label><div className="field-value">{children || '-'}</div></div>;
   return (
     <div className="stack">
       <Health c={c} />
@@ -145,7 +151,7 @@ function Overview({ c }: { c: Campaign }) {
       <div className="panel">
         <div className="panel-head"><h3 className="section-title">Campaign brief</h3></div>
         <div className="panel-body field-grid">
-          <div className="field full"><label>Brief</label><div className="field-value">{c.brief || '—'}</div></div>
+          <div className="field full"><label>Brief</label><div className="field-value">{c.brief || '-'}</div></div>
           <F l="Objective">{c.objective}</F>
           <F l="Target audience">{c.audience}</F>
           <F l="Required deliverables">{c.agreement.deliverables}</F>
@@ -164,6 +170,27 @@ function Overview({ c }: { c: Campaign }) {
   );
 }
 
+function CollabPerformance({ c }: { c: Campaign }) {
+  const { gridRows } = useStore();
+  const row = c.programmeId ? gridRows(c.programmeId).find((r) => r.collab.id === c.id) : undefined;
+  if (!c.programmeId || !row) return <Empty title="No campaign data">This collaboration is not part of a campaign, so there are no post numbers to show.</Empty>;
+  const live = row.status === 'Live';
+  return (
+    <div className="stack">
+      <div className="stats">
+        <Stat label="Views" value={live && row.views !== null ? fmtNum(row.views) : '-'} sub={row.expectedViews ? `of ${fmtNum(row.expectedViews)} paid for` : undefined} tone={live ? deliveryTone(row.deliveryPct) : 'neutral'} badge={live ? <SourceBadge source="public" compact /> : undefined} />
+        <Stat label="Delivery" value={row.deliveryPct === null ? '-' : fmtPct(row.deliveryPct)} sub="views vs views paid for" tone={deliveryTone(row.deliveryPct)} />
+        <Stat label="Cost per 1,000 views" value={row.costPer1000 ? fmtINR(row.costPer1000) : '-'} sub={row.fee ? `fee ${fmtINR(row.fee)}` : 'fee to be agreed'} tone="peach" />
+        <Stat label="Sales via code" value={row.revenue !== null ? fmtINR(row.revenue) : '-'} sub={row.orders !== null ? `${row.orders} orders${row.roas !== null ? `, ${row.roas.toFixed(1)}x return` : ''}` : 'Connect Shopify'} tone="mint" />
+      </div>
+      <div className="panel"><div className="panel-body">
+        <p style={{ margin: 0 }}>{live ? `The Reel is live${row.postedOnTime === false ? ' and was posted late' : ' and went up on schedule'}.` : row.status === 'Late' || row.status === 'Missed' ? 'The Reel has not been posted yet.' : 'The Reel is planned and not posted yet.'} {row.locked && live ? 'Reach, saves and shares are private to the creator until they send a screenshot or connect Instagram.' : ''}</p>
+        <p style={{ margin: '12px 0 0' }}><Link href={`/programmes/${c.programmeId}?tab=performance`} className="textlink">Open the campaign performance grid</Link></p>
+      </div></div>
+    </div>
+  );
+}
+
 export default function CampaignDetail({ id }: { id: string }) {
   const { campaignById, tasks, transitionStatus, updateCampaign, notify, openDialog, search } = useStore();
   const [, navigate] = useLocation();
@@ -177,7 +204,7 @@ export default function CampaignDetail({ id }: { id: string }) {
   useEffect(() => { setTab(initial); setReasons([]); }, [id, initial]);
 
   if (!c) {
-    return <><PageHeader title="Campaign not found" subtitle="It may have been removed or the link is wrong." /><Link className="button" href="/campaigns">Back to campaigns</Link></>;
+    return <><PageHeader title="Collaboration not found" subtitle="It may have been removed or the link is wrong." /><Link className="button" href="/campaigns">Back to collaborations</Link></>;
   }
   const q = search.trim().toLowerCase();
   const cTasks = tasks.filter((t) => t.campaignId === c.id);
@@ -231,6 +258,7 @@ export default function CampaignDetail({ id }: { id: string }) {
           {tab === 'Workflow' && <div className="panel"><div className="panel-head"><h3 className="section-title">Workflow</h3></div><div className="panel-body"><WorkflowProgress campaign={c} /></div></div>}
           {tab === 'Agreement' && <AgreementTab key={JSON.stringify(c.agreement)} campaign={c} />}
           {tab === 'Tasks' && <><div className="count-label">{q ? `${shown.length} of ${cTasks.length} tasks match "${search}"` : `${cTasks.length} tasks`}</div>{shown.length ? <div className="wgroup-list two">{shown.map((t) => <TaskCard key={t.id} t={t} showCampaign={false} />)}</div> : <Empty title="Nothing to show">{q ? 'No tasks match the search.' : 'No tasks yet. Add the first one.'}</Empty>}</>}
+          {tab === 'Performance' && <CollabPerformance c={c} />}
           {tab === 'Activity' && <ActivityList campaignId={c.id} />}
           {tab === 'Closeout' && <CloseoutTab key={JSON.stringify([c.closeout, c.publicationUrl, c.paymentStatus])} campaign={c} />}
         </div>

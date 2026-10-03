@@ -12,7 +12,7 @@ export function CampaignDialog({ onClose }: { onClose: () => void }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = () => {
     const e: Record<string, string> = {};
-    if (!v.title.trim()) e.title = 'Campaign title is required.';
+    if (!v.title.trim()) e.title = 'Collaboration title is required.';
     if (!v.creator.trim()) e.creator = 'Creator is required.';
     if (!v.owner.trim()) e.owner = 'Brand owner is required.';
     if (!v.dueDate) e.dueDate = 'Due date is required.';
@@ -23,16 +23,16 @@ export function CampaignDialog({ onClose }: { onClose: () => void }) {
     navigate(`/campaigns/${id}`);
   };
   return (
-    <Modal title="Create campaign" onClose={onClose} onSubmit={submit} submitLabel="Create campaign">
+    <Modal title="Create collaboration" onClose={onClose} onSubmit={submit} submitLabel="Create collaboration">
       <div className="form-grid">
-        <TextField wide label="Campaign title *" value={v.title} error={errors.title} onChange={(e) => setV({ ...v, title: e.target.value })} />
+        <TextField wide label="Collaboration title *" value={v.title} error={errors.title} onChange={(e) => setV({ ...v, title: e.target.value })} />
         <TextField label="Creator *" value={v.creator} error={errors.creator} onChange={(e) => setV({ ...v, creator: e.target.value })} />
         <TextField label="Brand owner *" value={v.owner} error={errors.owner} onChange={(e) => setV({ ...v, owner: e.target.value })} />
         <TextField label="Due date *" type="date" value={v.dueDate} error={errors.dueDate} onChange={(e) => setV({ ...v, dueDate: e.target.value })} />
         <SelectField label="Priority" value={v.priority} options={PRIORITIES} onChange={(e) => setV({ ...v, priority: e.target.value as Priority })} />
         <TextAreaField wide label="Brief (optional)" value={v.brief} onChange={(e) => setV({ ...v, brief: e.target.value })} />
       </div>
-      <p className="count-label" style={{ marginTop: 10 }}>New campaigns start in Planning with an empty agreement; incomplete terms are flagged until confirmed.</p>
+      <p className="count-label" style={{ marginTop: 10 }}>New collaborations start in Planning with an empty agreement; incomplete terms are flagged until confirmed.</p>
     </Modal>
   );
 }

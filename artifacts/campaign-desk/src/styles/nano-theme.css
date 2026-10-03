@@ -1,0 +1,109 @@
+/* nano.club theme.
+   Identity: ink (deep blue-black) as the base, tangerine for actions, lime as the playful accent.
+   Loaded last so it wins over redesign.css and foundation.css at equal specificity.
+   Shape rule: containers 20px, controls 12px, anything you press or toggle is a pill. */
+
+.app-shell {
+  --ink:#10222b; --bg:#f3f6f7; --surface:#ffffff; --line:#dfe6e9; --muted:#5b6d77;
+  --brand:#ff6a2b; --brand-hover:#ff7f47; --brand-ink:#b23c00; --brand-s:#ffe9de;
+  --lime:#c6f432; --lime-s:#f0fbc4;
+  --indigo:#b23c00; --indigo-s:#ffe9de;
+  --font-display:'Bricolage Grotesque','Geist',system-ui,sans-serif;
+  font-family:'Geist',system-ui,sans-serif;
+  font-feature-settings:'ss01','cv11';
+}
+
+/* ---- type: display face for the wordmark, page titles and the big numbers only ---- */
+.ptitle h1,.app-shell .detail-title,.tile b,.wordmark,.drawer-head h2,.app-shell .modal-head h2 { font-family:var(--font-display);font-weight:700;letter-spacing:-.03em }
+.ptitle h1 { font-size:clamp(28px,3.4vw,38px);line-height:1.08 }
+.stat b,.dt td.num,.dchip,.tile b { font-variant-numeric:tabular-nums }
+code,.mono { font-family:'Geist Mono',ui-monospace,monospace }
+
+/* ---- logo lockup ---- */
+.logo { display:inline-flex;align-items:center;gap:10px }
+.logo-mark { flex:none;border-radius:11px }
+.wordmark { font-size:21px;line-height:1;color:inherit;white-space:nowrap }
+.wordmark i { font-style:normal;color:var(--brand) }
+.app-shell .brand { padding:2px 6px 4px;gap:0;color:#fff;font-size:inherit }
+.brand-tag { margin:2px 8px 18px;font-size:12px;color:#8fa6b0;letter-spacing:.01em }
+
+/* ---- sidebar: ink, with a tangerine active state ---- */
+.app-shell .sidebar { background:var(--ink);color:#d6e2e7;border-right:0 }
+.app-shell .nav-link { color:#b4c5cc;border-radius:999px }
+.app-shell .nav-link:hover { background:rgba(255,255,255,.08);color:#fff }
+.app-shell .nav-link.active { background:var(--brand);color:var(--ink);font-weight:650;box-shadow:none }
+.app-shell .nav-link svg { stroke-width:1.9 }
+.app-shell .side-footer { border-top:1px solid rgba(255,255,255,.12);color:#e6eef1 }
+.app-shell .side-footer .avatar { background:rgba(255,255,255,.14);color:#fff }
+.app-shell .settings-link { color:#9fb3bb }
+.app-shell .settings-link:hover,.app-shell .settings-link.active { background:rgba(255,255,255,.1);color:#fff }
+.ws-switch-wrap { background:rgba(255,255,255,.08);color:#9fb3bb }
+.app-shell .ws-switch { color:#fff }
+.app-shell .ws-switch option { color:#10222b }
+.ws-mark { background:var(--lime);color:var(--ink) }
+.role-switch { background:rgba(255,255,255,.08);border-radius:999px }
+.role-switch button { color:#b4c5cc;border-radius:999px }
+.role-switch button.on { background:var(--brand);color:var(--ink);box-shadow:none;font-weight:700 }
+.role-hint { color:#8fa6b0 }
+
+/* ---- prototype ribbon: lime tape ---- */
+.proto-ribbon { background:var(--lime);color:var(--ink);font-weight:500 }
+.proto-ribbon b { color:var(--ink) }
+.proto-ribbon button,.proto-ribbon a { color:var(--ink) }
+
+/* ---- buttons: pills; the primary one is tangerine with ink text ---- */
+.btn,.app-shell .button { border-radius:999px;border-color:var(--line);background:var(--surface);color:var(--ink) }
+.btn:hover,.app-shell .button:hover { background:#eaf0f2;border-color:#c9d3d8 }
+.btn.primary,.app-shell .button.primary { background:var(--brand);border-color:var(--brand);color:var(--ink);box-shadow:0 8px 18px -10px rgba(255,106,43,.8);font-weight:700 }
+.btn.primary:hover,.app-shell .button.primary:hover { background:var(--brand-hover);border-color:var(--brand-hover) }
+.btn.solid { background:var(--ink);border-color:var(--ink);color:#fff }
+.btn.solid:hover { background:#1d3a47 }
+.btn.soft { border-radius:999px }
+.btn.danger { color:#b3261e }
+.btn:focus-visible,select:focus-visible,.chip:focus-visible,.icon-flat:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible { outline:2px solid var(--ink);outline-offset:2px }
+.btn.primary:focus-visible { outline-color:var(--ink) }
+
+/* ---- segmented controls, tabs: pills ---- */
+.chips,.app-shell .tabs { background:#e8eef0;border-radius:999px;padding:4px }
+.chip,.app-shell .tab { border-radius:999px;color:#44585f }
+.chip.on,.app-shell .tab.active { background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(16,34,43,.14);font-weight:700 }
+.pill-check.on { background:var(--ink);border-color:var(--ink);color:#fff }
+
+/* ---- fields ---- */
+.app-shell .top-search input { border-radius:999px }
+.search-field input { border-radius:999px }
+.selects select,.field-inline select { border-radius:999px }
+
+/* ---- surfaces ---- */
+.app-shell .topbar { background:rgba(243,246,247,.88) }
+.card { border-radius:20px;box-shadow:0 1px 0 rgba(16,34,43,.04) }
+.tile { border-radius:24px }
+.tile b { font-size:64px }
+.static b { font-size:42px }
+.avatar,.person b { background:var(--brand-s);color:var(--brand-ink) }
+.textlink,.link-btn { color:var(--brand-ink) }
+.app-shell .toast { background:var(--ink);color:#fff }
+.bar span,.meter span { background:var(--c,var(--brand)) }
+
+/* ---- tables ---- */
+.dt th { background:#eff3f5;color:#4c5f69 }
+.dt tbody tr:hover td { background:#f6f9fa }
+.dt-wrap { border-radius:20px }
+
+/* ---- tone: tier chips on the marketplace use mint=Nano, blue=Micro, purple=Mid ---- */
+.t-mint { --c:#8fc400;--s:#f0fbc4;--i:#46590a }
+.t-purple { --c:#1593a8;--s:#d9f1f4;--i:#0b5f6d }
+.t-indigo { --c:#b23c00;--s:#ffe9de;--i:#8f2f00 }
+.t-peach { --c:#e07a3a;--s:#ffe5d3;--i:#8f4210 }
+
+/* ---- small screens: sidebar becomes a top bar, keep it ink ---- */
+@media (max-width:700px) {
+  .app-shell .sidebar { background:var(--ink) }
+  .brand-tag { display:none }
+  .app-shell .nav-link { color:#d6e2e7 }
+  .app-shell .nav-link.active { color:var(--ink) }
+}
+
+/* ---- layout safety: grids of cards must never grow past their column ---- */
+.pf,.stack,.cr-page,.pg-page { grid-template-columns:minmax(0,1fr) }
+.pf > *,.stack > * { min-width:0 }

@@ -1,8 +1,8 @@
 import type { Agreement, Campaign, Status, Task } from './types';
 import { STATUSES } from './types';
 
-export const CURRENT_USER = 'Abhishek Jain';
-export const STORAGE_KEY = 'campaign-desk:v2';
+export const CURRENT_USER = 'Meera Nair';
+export const STORAGE_KEY = 'nano-club:v3';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 export const toISO = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -13,7 +13,7 @@ export const addDays = (n: number) => {
   return toISO(d);
 };
 export const fmtDate = (iso: string) =>
-  iso ? new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  iso ? new Date(`${iso}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 export const fmtDateTime = (iso: string) =>
   new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 export const initials = (name: string) =>

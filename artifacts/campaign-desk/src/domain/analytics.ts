@@ -52,10 +52,10 @@ export function dashboardSummary(campaigns: readonly Campaign[], tasks: readonly
 
 export function campaignHealth(campaigns: readonly Campaign[], tasks: readonly Task[]) {
   const groups: { name: string; category: HealthCategory; color: string }[] = [
-    { name: 'Active', category: 'active', color: '#5755D9' },
-    { name: 'In review', category: 'review', color: '#9970DC' },
-    { name: 'Blocked', category: 'blocked', color: '#E37E70' },
-    { name: 'Completed', category: 'completed', color: '#48A67F' },
+    { name: 'Active', category: 'active', color: '#ff6a2b' },
+    { name: 'In review', category: 'review', color: '#1593a8' },
+    { name: 'Blocked', category: 'blocked', color: '#e5484d' },
+    { name: 'Completed', category: 'completed', color: '#2fa46b' },
   ];
   return groups.map(({ name, category, color }) => ({
     name, color,
