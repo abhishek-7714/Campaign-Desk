@@ -301,7 +301,7 @@ export function buildSeed(): Persisted {
   ev('cr06', ME, 'Invoice recorded as accepted', 8, 13);
 
   return {
-    version: 3, workspaceName: BRAND, role: 'brand', actingCreatorId: ACTING_CREATOR_ID, shortlist: [pool[9]?.id, pool[10]?.id, pool[11]?.id].filter(Boolean) as string[],
+    version: 3, workspaceName: BRAND, signedIn: false, role: 'brand', actingCreatorId: ACTING_CREATOR_ID, shortlist: [pool[9]?.id, pool[10]?.id, pool[11]?.id].filter(Boolean) as string[],
     integrations: { shopify: true, instagram: false },
     creators, programmes: progs, applications, posts, campaigns, tasks, activity,
   };

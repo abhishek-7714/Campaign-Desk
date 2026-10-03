@@ -243,6 +243,8 @@ export type Role = 'brand' | 'creator';
 export interface Persisted {
   version: 3;
   workspaceName: string;
+  /** Demo login state. The landing page shows until someone signs in as Brand or Creator. */
+  signedIn: boolean;
   role: Role;
   actingCreatorId: string;
   shortlist: string[];

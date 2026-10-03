@@ -33,6 +33,8 @@ A front-end prototype of nano.club: find creators, run campaigns, and see what e
 
 nano.club is a creator marketplace and campaign tracker for D2C brands in India. Brands find creators, run campaigns, and see per post what each creator delivered against the views the brand paid for. Creators have their own view (Brand / Creator switch in the sidebar). Strategy and brand notes are in PRODUCT.md.
 
+Logged out, the app shows a landing page with two demo logins (Brand: Meera Nair, Creator: Ananya Rao). There is no real sign-in. The account menu has a demo-only switch between the two views, and Log out.
+
 Core surfaces: Home, Campaigns (programmes), Marketplace (directory, profiles, compare), Collaborations (one creator on one campaign, with agreement, tasks and closeout), the campaign performance grid, Reports, and the Creator view (opportunities, my work, profile).
 
 ## User preferences

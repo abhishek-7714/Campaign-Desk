@@ -17,7 +17,7 @@ function load(): LoadResult {
     if (!raw) return { data: buildSeed(), error: null, blocked: false };
     const parsed = JSON.parse(raw) as Persisted;
     if (parsed?.version !== 3 || !Array.isArray(parsed.campaigns) || !Array.isArray(parsed.posts) || !Array.isArray(parsed.creators)) throw new Error('Saved data has an unexpected format.');
-    return { data: parsed, error: null, blocked: false };
+    return { data: { ...parsed, signedIn: parsed.signedIn === true }, error: null, blocked: false };
   } catch (e) {
     return {
       data: buildSeed(),
@@ -68,6 +68,10 @@ interface Store {
   people: string[];
 
   /* ---- marketplace and performance ---- */
+  signedIn: boolean;
+  /** Demo login: no password check, just picks which account to view. */
+  signIn: (r: Role) => void;
+  signOut: () => void;
   role: Role;
   setRole: (r: Role) => void;
   /** Epoch ms, refreshed when a "fetching" row finishes. Use it when deciding what to display. */
@@ -223,7 +227,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       storageError,
       writesBlocked,
       startFresh: () => { setWritesBlocked(false); setStorageError(null); notify('Started a fresh workspace from sample data'); },
-      resetSample: () => { setData(buildSeed()); notify('Workspace reset to sample data'); },
+      resetSample: () => { setData((p) => ({ ...buildSeed(), signedIn: p.signedIn, role: p.role })); notify('Workspace reset to sample data'); },
       setWorkspaceName: (name) => setData((p) => ({ ...p, workspaceName: name })),
       search, setSearch, toast, notify, dialog, openDialog,
       campaignById: find,
@@ -304,6 +308,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       /* ------------------------- marketplace and performance ------------------------- */
 
+      signedIn: data.signedIn,
+      signIn: (r) => setData((p) => ({ ...p, signedIn: true, role: r })),
+      signOut: () => setData((p) => ({ ...p, signedIn: false })),
       role: data.role,
       setRole: (r) => setData((p) => ({ ...p, role: r })),
       now,

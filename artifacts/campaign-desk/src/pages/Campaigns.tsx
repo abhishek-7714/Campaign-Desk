@@ -14,7 +14,7 @@ export default function Campaigns() {
   const { campaigns, tasks, search, openDialog, brandProgrammes } = useStore();
   const [, navigate] = useLocation();
   const p = new URLSearchParams(useSearch());
-  const filter = (FILTERS as readonly string[]).includes(p.get('filter') ?? '') ? p.get('filter')! : 'all';
+  const filter = (FILTERS as readonly string[]).includes(p.get('filter') ?? '') ? p.get('filter')! : 'active';
   const owner = p.get('owner') ?? 'all';
   const due = p.get('due') ?? 'all';
   const programme = p.get('programme') ?? 'all';
@@ -23,7 +23,7 @@ export default function Campaigns() {
   const q = search.trim().toLowerCase();
   const set = (k: string, v: string) => {
     const n = new URLSearchParams(p);
-    if (v === 'all' || (k === 'sort' && v === 'due') || !v) n.delete(k); else n.set(k, v);
+    if ((v === 'all' && k !== 'filter') || (k === 'sort' && v === 'due') || !v) n.delete(k); else n.set(k, v);
     const s = n.toString();
     navigate(`/campaigns${s ? `?${s}` : ''}`, { replace: true });
   };
