@@ -1,0 +1,1 @@
+- [Chart compatibility](chart-compatibility.md) — Recharts 2 with React 19 can silently omit chart axes inside fragments; pass chart children directly.

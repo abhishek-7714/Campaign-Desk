@@ -26,6 +26,8 @@ A creator-campaign operations prototype for explicit agreements, shared task own
   **Why:** The user explicitly requested no authentication, database, API keys, or third-party services for the first prototype.
 - Publication, invoice, and payment fields are team-entered status tracking, not externally verified facts or payment processing.
   **Why:** The prototype tests end-to-end coordination, not financial infrastructure.
+- Operational summaries must be derived from saved campaigns and tasks. Engagement and historical trend measurements are explicitly labeled fictional demo data.
+  **Why:** The requested visual reporting has no connected analytics source; presentation must not imply live or externally measured results.
 
 ## Product
 
@@ -34,14 +36,16 @@ The user is validating three hypotheses:
 2. Clear owners and deadlines reduce coordination effort.
 3. One campaign workspace makes publication and payment status easier to manage.
 
-Core surfaces are a campaign issue list, campaign detail, agreements, task board, personal work queue, activity history, and closeout tracking. Reports may remain a clearly labeled placeholder.
+Core surfaces are a Home command center, campaign gallery and detail workspace, agreement-health cards, task board, personal work queue, visual reports, activity history, and closeout tracking.
 
 ## User preferences
 
-- Use Jira-inspired density and interaction patterns without copying Jira branding.
-- Open directly into the campaign list; use fictional, interconnected demo records.
-- Do not add AI chat, creator discovery/recommendations, performance analytics, messaging integrations, or payment processing.
-- Prefer functional behaviors and explicit missing-term indicators over decorative dashboards.
+- Open directly into Home, not Campaigns. The user explicitly requested a fundamental redesign, not decorated tables.
+- No table-first Campaigns, My Work, Board, Agreements, or Reports pages. Use cards, visual summaries, charts, progress indicators, and timelines.
+- Use the supplied reference for hierarchy and visual rhythm, not its branding or exact layout.
+- Use a warm light base, light navigation, and semantic indigo/blue, lavender, yellow, coral, green, and mint accents.
+- Keep all existing editing, workflow validation, closeout, search, task movement, and local persistence functional.
+- Do not add AI chat, creator discovery/recommendations, messaging integrations, or payment processing.
 
 ## Gotchas
 

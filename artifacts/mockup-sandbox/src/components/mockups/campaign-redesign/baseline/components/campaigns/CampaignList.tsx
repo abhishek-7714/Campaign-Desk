@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { ArrowDownUp, Plus, SlidersHorizontal } from 'lucide-react';
-import { STATUSES } from '@/domain/types';
-import { awaitingReview, campaignDueSoon, campaignOverdue, fmtDate, missingTerms } from '@/domain/helpers';
-import { matchCampaign } from '@/domain/search';
-import { Avatar, Badge, EmptyState, PriorityLabel } from '@/components/ui-bits';
-import { PageHeader } from '@/components/layout/Shell';
-import { useStore } from '@/state/store';
+import { STATUSES } from '../../domain/types';
+import { awaitingReview, campaignDueSoon, campaignOverdue, fmtDate, missingTerms } from '../../domain/helpers';
+import { matchCampaign } from '../../domain/search';
+import { Avatar, Badge, EmptyState, PriorityLabel } from '../../components/ui-bits';
+import { PageHeader } from '../../components/layout/Shell';
+import { useStore } from '../../state/store';
 
 export default function CampaignList() {
   const { campaigns, tasks, search, openDialog } = useStore();

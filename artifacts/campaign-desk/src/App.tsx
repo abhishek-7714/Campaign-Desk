@@ -4,9 +4,15 @@ import NotFound from '@/pages/not-found';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { StoreProvider } from '@/state/store';
 import { Shell } from '@/components/layout/Shell';
-import CampaignList from '@/components/campaigns/CampaignList';
+import '@/redesign.css';
+import Home from '@/pages/Home';
+import Campaigns from '@/pages/Campaigns';
+import MyWork from '@/pages/MyWork';
+import BoardPage from '@/pages/BoardPage';
+import Agreements from '@/pages/Agreements';
+import Reports from '@/pages/Reports';
+import Settings from '@/pages/Settings';
 import CampaignDetail from '@/components/campaigns/CampaignDetail';
-import { AgreementsPage, BoardPage, MyWorkPage, ReportsPage, SettingsPage } from '@/pages/Pages';
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   const [location] = useLocation();
@@ -18,13 +24,14 @@ function Router() {
     <Shell>
       <RoutedErrorBoundary>
         <Switch>
-          <Route path="/" component={CampaignList} />
+          <Route path="/" component={Home} />
+          <Route path="/campaigns" component={Campaigns} />
           <Route path="/campaigns/:id">{(p) => <CampaignDetail id={p.id} />}</Route>
-          <Route path="/my-work" component={MyWorkPage} />
+          <Route path="/my-work" component={MyWork} />
           <Route path="/board" component={BoardPage} />
-          <Route path="/agreements" component={AgreementsPage} />
-          <Route path="/reports" component={ReportsPage} />
-          <Route path="/settings" component={SettingsPage} />
+          <Route path="/agreements" component={Agreements} />
+          <Route path="/reports" component={Reports} />
+          <Route path="/settings" component={Settings} />
           <Route component={NotFound} />
         </Switch>
       </RoutedErrorBoundary>

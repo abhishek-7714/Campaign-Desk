@@ -1,0 +1,707 @@
+I want a FUNDAMENTAL REDESIGN of the current dashboard.
+
+Do not simply restyle the existing tables.
+
+The current implementation feels like generic enterprise SaaS / AI-generated dashboard design.
+
+I have attached reference dashboard screenshots.
+
+Use those references for:
+- visual hierarchy
+- card-based information architecture
+- color usage
+- chart composition
+- whitespace
+- density
+- visual rhythm
+- dashboard storytelling
+
+Do NOT copy their branding, product identity, logos, text, or exact layouts.
+
+==================================================
+CORE DESIGN PRINCIPLE
+==================================================
+
+The user should understand the state of their work in approximately 5 seconds.
+
+The application should answer:
+
+1. What is happening?
+2. What needs my attention?
+3. What is overdue?
+4. What is progressing?
+5. Which campaigns need action?
+
+Do not force the user to read tables to answer these questions.
+
+==================================================
+CRITICAL RULE: NO TABLE-FIRST PAGES
+==================================================
+
+Do NOT use tables as the primary UI for:
+
+Campaigns
+My Work
+Board
+Agreements
+Reports
+
+No first-view data tables.
+
+Information should primarily be represented through:
+
+- tiles
+- cards
+- visual summaries
+- charts
+- progress indicators
+- status pills
+- activity feeds
+- kanban cards
+- visual timelines
+- infographics
+
+Tables may exist inside a detail view if required, but they should never be the first thing users encounter.
+
+==================================================
+OVERALL VISUAL LANGUAGE
+==================================================
+
+Use the attached dashboard reference as inspiration.
+
+The interface should feel:
+
+modern
+polished
+visual
+confident
+structured
+slightly playful
+professional
+
+NOT:
+
+generic
+corporate
+AI-generated
+gray
+spreadsheet-like
+dashboard-template-like
+
+Use a warm off-white / very light neutral base.
+
+Use a restrained but expressive accent palette:
+
+deep indigo / blue
+lavender
+mint
+soft yellow
+peach
+coral
+green
+
+Use color semantically.
+
+Suggested system:
+
+BLUE = active / normal
+PURPLE = review
+YELLOW = attention
+CORAL = blocked / urgent
+GREEN = complete
+MINT = positive / informational
+
+Do NOT make everything colorful.
+Most surfaces should remain clean and neutral.
+
+Use color to establish hierarchy.
+
+==================================================
+SIDEBAR
+==================================================
+
+Keep the left navigation.
+
+But make it cleaner and more visually considered.
+
+Workspace selector at top.
+
+Navigation:
+
+Home
+Campaigns
+My Work
+Board
+Agreements
+Reports
+
+Use simple line icons.
+
+Selected navigation item should have a clear filled/soft-color state.
+
+Do not make the sidebar overly dark unless it genuinely improves the visual system.
+
+==================================================
+GLOBAL HOME PAGE
+==================================================
+
+The first page should be HOME.
+
+Do NOT default to Campaigns.
+
+The home page should act as a command center.
+
+Header:
+
+"Good morning, Abhishek."
+
+Subheading:
+
+"Here's what needs your attention."
+
+Primary CTA:
+
+"+ New campaign"
+
+==================================================
+HOME: TOP SUMMARY
+==================================================
+
+Create large visual metric tiles:
+
+ACTIVE CAMPAIGNS
+6
+
+OVERDUE
+3
+
+AWAITING REVIEW
+2
+
+NEEDS ACTION
+4
+
+These should be visual cards, NOT KPI tables.
+
+Give each metric its own subtle semantic color.
+
+Use large numbers and minimal supporting text.
+
+==================================================
+HOME: CAMPAIGN PULSE
+==================================================
+
+Create a major visual section showing campaign health.
+
+Use a chart / infographic rather than a table.
+
+Possible visualization:
+
+Campaigns by state
+
+Active
+In review
+Blocked
+Completed
+
+Use a visually elegant bar or segmented visualization.
+
+Add a small contextual insight:
+
+"3 active campaigns need attention this week."
+
+==================================================
+HOME: NEEDS YOUR ATTENTION
+==================================================
+
+This should be one of the most important sections.
+
+Create 3–5 actionable cards.
+
+Example:
+
+FESTIVE SKIN LAUNCH
+
+Terms to confirm
+
+Payment + usage rights need confirmation.
+
+URGENT
+
+[Resolve]
+
+--------------------------------
+
+WEEKEND CAFÉ REEL
+
+Payment pending
+
+Creator submission is complete.
+
+Due today
+
+[Review]
+
+--------------------------------
+
+CAMPUS STYLE STORIES
+
+Changes requested
+
+Revised draft is ready.
+
+[Review]
+
+These should be compact but visually strong.
+
+The important thing is:
+the action should be obvious.
+
+==================================================
+HOME: ENGAGEMENT / CAMPAIGN METRICS
+==================================================
+
+Show the metrics users will care about most.
+
+For example:
+
+Engagement rate
+18.4%
+
+Creator response rate
+82%
+
+Campaign completion
+74%
+
+Average turnaround
+3.2 days
+
+Use a combination of:
+
+- large numbers
+- sparklines
+- progress bars
+- small charts
+- trend indicators
+
+Do NOT put these in a spreadsheet.
+
+==================================================
+HOME: ACTIVE CAMPAIGNS
+==================================================
+
+Show 3–4 campaign tiles.
+
+Each tile should contain:
+
+Campaign name
+Campaign type
+Owner
+Current status
+Progress
+Attention indicator
+
+Example:
+
+MONSOON EDIT
+
+Creator campaign
+
+████████░░ 80%
+
+● In review
+
+1 item needs attention
+
+[Open campaign]
+
+Use subtle visual variety between cards.
+
+==================================================
+HOME: RECENT ACTIVITY
+==================================================
+
+Create a chronological activity feed.
+
+Example:
+
+○ 8m ago
+Arjun submitted revised reel
+Monsoon Edit
+
+○ 2h ago
+Payment confirmed
+Weekend Café Reel
+
+○ 4h ago
+Terms flagged
+Festive Skin Launch
+
+○ Yesterday
+New creator submission
+Campus Style Stories
+
+Keep it visually light.
+
+==================================================
+CAMPAIGNS PAGE
+==================================================
+
+REPLACE THE TABLE COMPLETELY.
+
+Use a card/grid-based campaign gallery.
+
+Each campaign card should include:
+
+Campaign name
+Creator
+Brand owner
+Status
+Priority
+Due date
+Progress
+Issues requiring attention
+
+Cards should visually differentiate:
+
+healthy campaigns
+campaigns needing attention
+overdue campaigns
+blocked campaigns
+
+Include filters at the top:
+
+All
+Active
+Review
+Blocked
+Completed
+
+But keep filters compact.
+
+==================================================
+CAMPAIGN DETAIL
+==================================================
+
+When a campaign is opened:
+
+Create a rich detail page.
+
+Top:
+
+Campaign name
+Status
+Owner
+Due date
+
+Then show:
+
+CAMPAIGN HEALTH
+
+progress visualization
+
+DELIVERABLES
+
+visual checklist
+
+TERMS
+
+card-based agreement summary
+
+TASKS
+
+priority task cards
+
+ACTIVITY
+
+timeline
+
+The campaign should feel like a workspace rather than a table.
+
+==================================================
+MY WORK
+==================================================
+
+Do NOT create a task table.
+
+Create four visual sections:
+
+DUE TODAY
+OVERDUE
+AWAITING MY REVIEW
+UPCOMING
+
+Each item should be a task card.
+
+Task card:
+
+Task title
+Campaign
+Priority
+Due date
+Status
+Action button
+
+Make overdue tasks visually obvious.
+
+==================================================
+BOARD
+==================================================
+
+The current Board is too dull.
+
+Make this one of the most visually distinctive pages.
+
+Use Kanban columns:
+
+TO DO
+IN PROGRESS
+IN REVIEW
+BLOCKED
+DONE
+
+Each column should have a distinctive but restrained color theme.
+
+Example:
+
+TO DO
+soft yellow
+
+IN PROGRESS
+soft blue
+
+IN REVIEW
+soft lavender
+
+BLOCKED
+soft coral
+
+DONE
+soft green
+
+Column header should show:
+
+name
+count
+subtle progress / workload indicator
+
+Cards should include:
+
+Task
+Campaign
+Assignee
+Priority
+Due date
+
+Use colored left borders / dots / labels for urgency.
+
+Make the board feel lively.
+
+Do NOT use plain gray columns.
+
+Do NOT make every card identical.
+
+Use subtle variation and clear hierarchy.
+
+Add drag-and-drop behavior if already supported.
+
+==================================================
+AGREEMENTS
+==================================================
+
+Do NOT use a table.
+
+Create agreement-health cards.
+
+Each campaign should show:
+
+Campaign
+Creator
+Agreement completion
+
+For example:
+
+FESTIVE SKIN LAUNCH
+
+Agreement health
+██████░░░░ 60%
+
+Missing:
+Fee
+Paid usage rights
+Exclusivity
+
+[Resolve terms]
+
+Healthy agreements should have a green completion state.
+
+Partially complete agreements should use yellow.
+
+Highly unresolved agreements should use coral.
+
+==================================================
+REPORTS
+==================================================
+
+Replace the current placeholder.
+
+Create a real visual reporting page.
+
+Top summary:
+
+Active campaigns
+Completion rate
+Average turnaround
+Overdue rate
+
+Then:
+
+CAMPAIGN ENGAGEMENT
+Large line/area chart.
+
+CAMPAIGN HEALTH
+Donut / segmented visualization.
+
+WORKLOAD BY OWNER
+Bar chart.
+
+OVERDUE TREND
+Line chart.
+
+TOP ATTENTION AREAS
+Ranked visual cards.
+
+Include one or two AI-generated/derived insights such as:
+
+"Terms are currently the most common blocker across active campaigns."
+
+Keep insights short.
+
+==================================================
+HOME PAGE PRIORITY
+==================================================
+
+The Home page should contain the MOST FREQUENTLY USED information.
+
+That means:
+
+- active campaign count
+- campaigns needing attention
+- overdue actions
+- items awaiting review
+- engagement metrics
+- campaign health
+- recent activity
+- quick create actions
+
+Do NOT make users navigate to six different pages just to understand what is happening.
+
+The navigation pages are for deeper work.
+
+Home is for situational awareness.
+
+==================================================
+REFERENCE VISUAL QUALITY
+==================================================
+
+The attached dashboard reference uses:
+
+- strong whitespace
+- large visual cards
+- colorful semantic modules
+- charts
+- very clear hierarchy
+- soft backgrounds
+- clean typography
+- strong alignment
+- visual storytelling
+
+Capture that quality.
+
+Do NOT reproduce it literally.
+
+==================================================
+TYPOGRAPHY
+==================================================
+
+Use a modern clean sans-serif.
+
+Do not use editorial serif typography here.
+
+This is the product application, not the marketing site.
+
+Prioritize:
+clarity
+legibility
+density
+hierarchy
+
+Large headings.
+
+Medium-weight labels.
+
+Small metadata.
+
+==================================================
+SPACING
+==================================================
+
+Increase whitespace compared with the current version.
+
+Avoid packing 10 pieces of information into every card.
+
+Each component needs a clear focal point.
+
+==================================================
+MICROINTERACTIONS
+==================================================
+
+Use subtle interactions:
+
+- card hover
+- progress animation
+- chart entrance
+- status transitions
+- drag-and-drop
+- filter transitions
+- expandable cards
+- contextual action buttons
+
+Do NOT use flashy animations.
+
+==================================================
+IMPORTANT
+==================================================
+
+The current implementation should NOT be incrementally decorated.
+
+Reconsider the page architecture.
+
+The desired result is:
+
+VISUAL DASHBOARD
++
+CAMPAIGN OPERATING SYSTEM
++
+CLEAR PRIORITIZATION
+
+not:
+
+DATABASE TABLE
++
+SIDEBAR
++
+BUTTONS
+
+Before modifying the code, inspect the existing components and data model.
+
+Then provide:
+
+1. proposed new information architecture
+2. page-by-page component structure
+3. visual color system
+4. explanation of what will be removed
+5. explanation of what will be rebuilt
+
+Then implement the redesign.

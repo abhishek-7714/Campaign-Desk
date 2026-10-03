@@ -1,25 +1,26 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Activity, AlertTriangle, Bell, BriefcaseBusiness, ChevronRight, FileCheck2, LayoutGrid, ListTodo, Plus, Search, Settings } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, BriefcaseBusiness, ChevronRight, ChevronsUpDown, FileCheck2, Home, LayoutGrid, ListTodo, Plus, Search, Settings } from 'lucide-react';
 import { useStore } from '@/state/store';
 import { CURRENT_USER } from '@/domain/helpers';
 import { Avatar, Badge } from '@/components/ui-bits';
 import { CampaignDialog, TaskDialog } from './Dialogs';
 
 const NAV = [
-  { href: '/', label: 'Campaigns', icon: BriefcaseBusiness },
-  { href: '/my-work', label: 'My work', icon: ListTodo },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/campaigns', label: 'Campaigns', icon: BriefcaseBusiness },
+  { href: '/my-work', label: 'My Work', icon: ListTodo },
   { href: '/board', label: 'Board', icon: LayoutGrid },
   { href: '/agreements', label: 'Agreements', icon: FileCheck2 },
   { href: '/reports', label: 'Reports', icon: Activity },
-  { href: '/settings', label: 'Workspace settings', icon: Settings },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 function useCrumbs(): { label: string; href?: string }[] {
   const [loc] = useLocation();
   const { campaignById } = useStore();
   const m = loc.match(/^\/campaigns\/([^/]+)/);
-  if (m) return [{ label: 'Campaigns', href: '/' }, { label: campaignById(m[1])?.issueKey ?? 'Not found' }];
+  if (m) return [{ label: 'Campaigns', href: '/campaigns' }, { label: campaignById(m[1])?.issueKey ?? 'Not found' }];
   const item = NAV.find((n) => n.href === loc);
   return [{ label: item?.label ?? 'Not found' }];
 }
@@ -70,7 +71,7 @@ function CreateMenu() {
   }, [open]);
   return (
     <div className="menu-wrap" ref={ref}>
-      <button className="button primary" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-create"><Plus />Create</button>
+      <button className="button primary" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-create"><Plus />New</button>
       {open && (
         <div className="menu" role="menu">
           <button role="menuitem" onClick={() => { setOpen(false); openDialog({ type: 'campaign' }); }} data-testid="menu-create-campaign">Campaign</button>
@@ -90,20 +91,21 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <aside className="sidebar">
         <Link className="brand" href="/"><span className="brand-mark">CD</span>Campaign Desk</Link>
-        <div className="workspace-label"><label htmlFor="ws-switch">Workspace</label></div>
         <div className="ws-switch-wrap">
+          <span className="ws-mark" aria-hidden="true">{workspaceName.slice(0, 1).toUpperCase()}</span>
           <select id="ws-switch" className="ws-switch" aria-label="Workspace" value="main" onChange={() => undefined}>
             <option value="main">{workspaceName}</option>
           </select>
+          <ChevronsUpDown size={14} aria-hidden="true" />
         </div>
         <nav className="nav-list" aria-label="Primary">
-          {NAV.map((item) => {
+          {NAV.filter((n) => n.href !== '/settings').map((item) => {
             const Icon = item.icon;
-            const active = item.href === '/' ? loc === '/' || loc.startsWith('/campaigns') : loc === item.href;
+            const active = item.href === '/' ? loc === '/' : item.href === '/campaigns' ? loc.startsWith('/campaigns') : loc === item.href;
             return <Link key={item.href} href={item.href} className={`nav-link ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined}><Icon />{item.label}</Link>;
           })}
         </nav>
-        <div className="side-footer"><Avatar name={CURRENT_USER} /><span>{CURRENT_USER}</span></div>
+        <div className="side-footer"><Avatar name={CURRENT_USER} /><span>{CURRENT_USER}</span><Link href="/settings" className={`settings-link ${loc === '/settings' ? 'active' : ''}`} aria-label="Settings" title="Settings"><Settings size={15} /></Link></div>
       </aside>
       <div className="main-area">
         <header className="topbar">

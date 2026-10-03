@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useSearch } from 'wouter';
-import { Plus } from 'lucide-react';
+import { Check, Circle, Plus } from 'lucide-react';
 import { PRIORITIES, STATUSES, type Campaign, type Priority, type Status } from '@/domain/types';
-import { campaignOverdue, fmtDate, missingTerms } from '@/domain/helpers';
+import { campaignOverdue, fmtDate, isGap, missingTerms } from '@/domain/helpers';
+import { campaignSignals } from '@/domain/analytics';
+import { categoryLabel, categoryTone, priorityTone } from '@/domain/format';
 import { matchTask } from '@/domain/search';
 import { Avatar, Badge, TextField } from '@/components/ui-bits';
 import { PageHeader } from '@/components/layout/Shell';
-import { TaskTable } from '@/components/tasks/TaskTable';
+import { Bar, Empty, Pill, TaskCard } from '@/components/viz/Cards';
 import { useStore } from '@/state/store';
 import WorkflowProgress from './WorkflowProgress';
 import AgreementTab from './AgreementTab';
@@ -50,6 +52,77 @@ function PropertiesPanel({ c }: { c: Campaign }) {
   );
 }
 
+const PRI = { Urgent: 0, High: 1, Medium: 2, Low: 3 } as const;
+const CLOSEOUT: [keyof Campaign['closeout'], string][] = [
+  ['contentApproved', 'Content approved'], ['publicationConfirmed', 'Publication confirmed'], ['urlRecorded', 'Publication URL recorded'],
+  ['invoiceSubmitted', 'Invoice submitted'], ['invoiceAccepted', 'Invoice accepted'], ['paymentRecorded', 'Payment recorded'],
+];
+
+function Health({ c }: { c: Campaign }) {
+  const { tasks } = useStore();
+  const s = campaignSignals(c, tasks);
+  const tone = categoryTone(s.category);
+  return (
+    <section className={`card health t-${tone}`} aria-label="Campaign health">
+      <div className="card-head"><h3>Campaign health</h3><Pill tone={tone}>{categoryLabel(s.category)}</Pill></div>
+      <div className="health-main"><b>{Math.round(s.progress)}%</b><span className="muted">{s.doneTasks} of {s.totalTasks} tasks complete</span></div>
+      <Bar value={s.progress} tone={tone} label="Campaign task progress" />
+      <p className={s.attention ? 'attn-note' : 'ok-note'}>{s.attention ? `${s.attentionCount} item${s.attentionCount === 1 ? '' : 's'} need attention` : 'No open issues'}{s.missing.length ? ` · missing: ${s.missing.slice(0, 3).join(', ')}` : ''}</p>
+    </section>
+  );
+}
+
+function Deliverables({ c }: { c: Campaign }) {
+  const { tasks } = useStore();
+  const mine = tasks.filter((t) => t.campaignId === c.id);
+  const items = c.agreement.deliverables.split(/\+|,|&|\band\b/i).map((x) => x.trim()).filter(Boolean);
+  return (
+    <section className="card" aria-label="Deliverables">
+      <div className="card-head"><h3>Deliverables</h3><Link href={`/campaigns/${c.id}?tab=agreement`} className="textlink">Edit terms</Link></div>
+      {items.length ? (
+        <ul className="dlist">
+          {items.map((it) => {
+            const noun = (it.split(/\s+/).pop() ?? '').toLowerCase().replace(/s$/, '');
+            const linked = noun.length > 2 ? mine.filter((t) => t.title.toLowerCase().includes(noun)) : [];
+            const state = !linked.length ? 'none' : linked.every((t) => t.completed) ? 'done' : 'open';
+            return (
+              <li key={it} className={`d-${state}`}>
+                <span className="d-ico">{state === 'done' ? <Check size={13} /> : <Circle size={9} />}</span>
+                <div><b>{it}</b><small>{state === 'none' ? 'No linked task' : `${linked.length} linked task${linked.length === 1 ? '' : 's'}: ${linked.map((t) => t.key).join(', ')} · ${state === 'done' ? 'all done' : 'in progress'}`}</small></div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : <p className="muted">Deliverables are not set yet. Add them in the agreement.</p>}
+      <div className="closeout-mini"><span className="eyebrow">Closeout checklist</span>
+        {CLOSEOUT.map(([k, l]) => <span key={k} className={c.closeout[k] ? 'co on' : 'co'}>{c.closeout[k] ? <Check size={12} /> : <Circle size={8} />}{l}</span>)}
+      </div>
+      <p className="muted fine">Deliverable links are matched by task title; completing one task never marks a deliverable approved. Approval is recorded in Closeout.</p>
+    </section>
+  );
+}
+
+function TermsSummary({ c }: { c: Campaign }) {
+  const rows: [string, string][] = [['Fee', c.agreement.fee], ['Organic usage', c.agreement.usageRights], ['Paid usage', c.agreement.paidUsageRights], ['Exclusivity', c.agreement.exclusivity], ['Revisions', c.agreement.revisions], ['Payment terms', c.agreement.paymentTerms]];
+  return (
+    <section className="card" aria-label="Terms">
+      <div className="card-head"><h3>Terms</h3><Link href={`/campaigns/${c.id}?tab=agreement`} className="textlink">{missingTerms(c) ? 'Resolve terms' : 'Open agreement'}</Link></div>
+      <div className="terms">{rows.map(([k, v]) => <div key={k} className={isGap(v) ? 'term gap' : 'term'}><span>{k}</span><b>{isGap(v) ? (v.trim() ? 'To be confirmed' : 'Missing') : v}</b></div>)}</div>
+    </section>
+  );
+}
+
+function PriorityTasks({ c }: { c: Campaign }) {
+  const { tasks } = useStore();
+  const top = tasks.filter((t) => t.campaignId === c.id && !t.completed).sort((a, b) => PRI[a.priority] - PRI[b.priority] || a.dueDate.localeCompare(b.dueDate)).slice(0, 3);
+  return (
+    <section aria-label="Priority tasks">
+      <div className="sec-head"><h2>Priority tasks</h2><Link href={`/campaigns/${c.id}?tab=tasks`} className="textlink">All tasks</Link></div>
+      {top.length ? <div className="wgroup-list">{top.map((t) => <TaskCard key={t.id} t={t} showCampaign={false} />)}</div> : <Empty title="No open tasks">Add a task to start tracking work.</Empty>}
+    </section>
+  );
+}
+
 function Overview({ c }: { c: Campaign }) {
   const { updateCampaign, notify } = useStore();
   const [blocker, setBlocker] = useState(c.blocker);
@@ -65,6 +138,10 @@ function Overview({ c }: { c: Campaign }) {
   const F = ({ l, children }: { l: string; children: string }) => <div className="field"><label>{l}</label><div className="field-value">{children || '—'}</div></div>;
   return (
     <div className="stack">
+      <Health c={c} />
+      <Deliverables c={c} />
+      <TermsSummary c={c} />
+      <PriorityTasks c={c} />
       <div className="panel">
         <div className="panel-head"><h3 className="section-title">Campaign brief</h3></div>
         <div className="panel-body field-grid">
@@ -100,7 +177,7 @@ export default function CampaignDetail({ id }: { id: string }) {
   useEffect(() => { setTab(initial); setReasons([]); }, [id, initial]);
 
   if (!c) {
-    return <><PageHeader title="Campaign not found" subtitle="It may have been removed or the link is wrong." /><Link className="button" href="/">Back to campaigns</Link></>;
+    return <><PageHeader title="Campaign not found" subtitle="It may have been removed or the link is wrong." /><Link className="button" href="/campaigns">Back to campaigns</Link></>;
   }
   const q = search.trim().toLowerCase();
   const cTasks = tasks.filter((t) => t.campaignId === c.id);
@@ -131,7 +208,7 @@ export default function CampaignDetail({ id }: { id: string }) {
           ) : (
             <h1 className="detail-title"><button className="title-btn" title="Click to edit title" onClick={() => { setTitle(c.title); setEditing(true); }} data-testid="button-edit-title">{c.title}</button></h1>
           )}
-          <div className="detail-meta"><Avatar name={c.owner} />{c.owner}<span>·</span>{c.creator}<span>·</span>{c.brand}</div>
+          <div className="detail-meta"><Avatar name={c.owner} />{c.owner}<span>·</span>{c.creator}<span>·</span>Due {fmtDate(c.dueDate)}<span>·</span><Pill tone={priorityTone(c.priority)} dot={false}>{c.priority}</Pill></div>
         </div>
         <div className="detail-actions">
           <div className="status-ctl">
@@ -153,7 +230,7 @@ export default function CampaignDetail({ id }: { id: string }) {
           {tab === 'Overview' && <><Overview key={`${c.blocker}|${c.nextAction}`} c={c} /><ActivityList campaignId={c.id} limit={4} /></>}
           {tab === 'Workflow' && <div className="panel"><div className="panel-head"><h3 className="section-title">Workflow</h3></div><div className="panel-body"><WorkflowProgress campaign={c} /></div></div>}
           {tab === 'Agreement' && <AgreementTab key={JSON.stringify(c.agreement)} campaign={c} />}
-          {tab === 'Tasks' && <><div className="count-label">{q ? `${shown.length} of ${cTasks.length} tasks match "${search}"` : `${cTasks.length} tasks`}</div><TaskTable tasks={shown} showCampaign={false} emptyText={q ? 'No tasks match the search.' : 'No tasks yet. Add the first one.'} /></>}
+          {tab === 'Tasks' && <><div className="count-label">{q ? `${shown.length} of ${cTasks.length} tasks match "${search}"` : `${cTasks.length} tasks`}</div>{shown.length ? <div className="wgroup-list two">{shown.map((t) => <TaskCard key={t.id} t={t} showCampaign={false} />)}</div> : <Empty title="Nothing to show">{q ? 'No tasks match the search.' : 'No tasks yet. Add the first one.'}</Empty>}</>}
           {tab === 'Activity' && <ActivityList campaignId={c.id} />}
           {tab === 'Closeout' && <CloseoutTab key={JSON.stringify([c.closeout, c.publicationUrl, c.paymentStatus])} campaign={c} />}
         </div>
