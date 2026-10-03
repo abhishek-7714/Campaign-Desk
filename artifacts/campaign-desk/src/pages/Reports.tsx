@@ -10,6 +10,7 @@ import { CreatorCell, Segmented, Stat, TierBadge } from '@/components/shared';
 import type { Tier } from '@/domain/types';
 
 type Scope = 'all' | 'Live' | 'Completed';
+const ScopeSegmented = Segmented<Scope>;
 const TIERS: Tier[] = ['Nano', 'Micro', 'Mid'];
 const chipTone = (pct: number | null) => `t-${deliveryTone(pct)}`;
 
@@ -58,7 +59,7 @@ export default function Reports() {
         actions={<button className="btn" onClick={exportCsv} disabled={!board.length}><Download size={15} />Export leaderboard</button>} />
 
       <div className="toolbar">
-        <Segmented<Scope> label="Campaigns to include" value={scope} onChange={setScope} options={[{ value: 'all', label: 'All' }, { value: 'Live', label: 'Live' }, { value: 'Completed', label: 'Completed' }]} />
+        <ScopeSegmented label="Campaigns to include" value={scope} onChange={setScope} options={[{ value: 'all', label: 'All' }, { value: 'Live', label: 'Live' }, { value: 'Completed', label: 'Completed' }]} />
       </div>
 
       {!data.length ? <Empty title="Nothing to report yet">Reports appear once a campaign is live and creators have posted.</Empty> : (
