@@ -1,44 +1,52 @@
-# [Project name]
+# Campaign Desk
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A creator-campaign operations prototype for explicit agreements, shared task ownership and deadlines, and publication/payment closeout.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- Run the managed `artifacts/campaign-desk: web` workflow for the app preview.
+- `pnpm --filter @workspace/campaign-desk run typecheck` — check the app's TypeScript
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- App: React, Vite, Tailwind CSS, Lucide icons
+- Persistence: browser local storage; no app backend is required for this prototype
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/campaign-desk/` — working web app
+- Shared API/database packages are scaffold infrastructure, not dependencies of this product's persistence.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Keep this prototype client-only with local seeded data and browser persistence.
+  **Why:** The user explicitly requested no authentication, database, API keys, or third-party services for the first prototype.
+- Publication, invoice, and payment fields are team-entered status tracking, not externally verified facts or payment processing.
+  **Why:** The prototype tests end-to-end coordination, not financial infrastructure.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+The user is validating three hypotheses:
+1. Explicit campaign terms reduce scope ambiguity.
+2. Clear owners and deadlines reduce coordination effort.
+3. One campaign workspace makes publication and payment status easier to manage.
+
+Core surfaces are a campaign issue list, campaign detail, agreements, task board, personal work queue, activity history, and closeout tracking. Reports may remain a clearly labeled placeholder.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Use Jira-inspired density and interaction patterns without copying Jira branding.
+- Open directly into the campaign list; use fictional, interconnected demo records.
+- Do not add AI chat, creator discovery/recommendations, performance analytics, messaging integrations, or payment processing.
+- Prefer functional behaviors and explicit missing-term indicators over decorative dashboards.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Local data is specific to a browser; this is not shared team storage.
+- Never imply notifications, payments, invoices, or external verification actually occur.
 
 ## Pointers
 

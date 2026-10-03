@@ -1,157 +1,45 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Link, useLocation } from 'wouter';
-import {
-  Activity, ArrowDownUp, BriefcaseBusiness, ChevronRight,
-  CircleHelp, FileCheck2, LayoutGrid, ListTodo, Plus, Search,
-  Settings, SlidersHorizontal, X, Pencil, Save,
-} from 'lucide-react';
+import { type ReactNode } from 'react';
+import { ErrorBoundary } from '@/components/error-boundary';
+import NotFound from '@/pages/not-found';
+import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { StoreProvider } from '@/state/store';
+import { Shell } from '@/components/layout/Shell';
+import CampaignList from '@/components/campaigns/CampaignList';
+import CampaignDetail from '@/components/campaigns/CampaignDetail';
+import { AgreementsPage, BoardPage, MyWorkPage, ReportsPage, SettingsPage } from '@/pages/Pages';
 
-type Status = 'Draft' | 'In Progress' | 'In Review' | 'Changes Requested' | 'Published' | 'Paid';
-type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
-type Agreement = { deliverables: string; fee: string; usageRights: string; revisions: string; paymentTerms: string };
-type Campaign = {
-  id:string; issueKey:string; title:string; brand:string; creator:string; owner:string; status:Status;
-  priority:Priority; dueDate:string; brief:string; objective:string; deliverables:string; audience:string;
-  publicationDate:string; blocker:string; nextAction:string; agreement:Agreement; publicationUrl:string;
-  invoiceStatus:string; paymentStatus:string;
-};
-type Task = {id:string;campaignId:string;title:string;assignee:string;dueDate:string;priority:Priority;status:string;completed:boolean};
-type ActivityEvent = {id:string;campaignId:string;actor:string;message:string;timestamp:string};
-type Store = { campaigns:Campaign[]; tasks:Task[]; activity:ActivityEvent[] };
-const seed:Store = {
- campaigns:[
-  {id:'c101',issueKey:'CMP-101',title:'Monsoon Edit',brand:'Monsoon & Co.',creator:'Aanya Deshmukh',owner:'Priya Shah',status:'In Review',priority:'High',dueDate:'2026-10-12',brief:'A tactile, everyday monsoon wardrobe edit: practical layers, considered details, and a lived-in city point of view.',objective:'Introduce the monsoon capsule and drive qualified product discovery.',deliverables:'1 Reel + 3 Stories',audience:'Urban India · 22–34 · style-conscious professionals',publicationDate:'2026-10-12',blocker:'Brand review of first-cut Reel',nextAction:'Brand owner reviews first cut and consolidates feedback.',agreement:{deliverables:'1 Reel + 3 Stories',fee:'₹27,000',usageRights:'Organic only',revisions:'1 revision round',paymentTerms:'Net 30 from invoice'},publicationUrl:'',invoiceStatus:'Not submitted',paymentStatus:'Unpaid'},
-  {id:'c102',issueKey:'CMP-102',title:'Sunday Table Stories',brand:'Narra Home',creator:'Rhea Menon',owner:'Kabir Rao',status:'Changes Requested',priority:'Medium',dueDate:'2026-09-24',brief:'A welcoming Sunday lunch told through table rituals and heirloom serveware.',objective:'Build awareness for the seasonal table collection.',deliverables:'1 Reel + 2 Stories',audience:'Home cooks and design-minded renters',publicationDate:'2026-09-29',blocker:'Caption and product tag updates requested',nextAction:'Creator revises caption and resubmits cut.',agreement:{deliverables:'1 Reel + 2 Stories',fee:'₹18,500',usageRights:'Organic social, 90 days',revisions:'2 rounds',paymentTerms:''},publicationUrl:'',invoiceStatus:'Not submitted',paymentStatus:'Unpaid'},
-  {id:'c103',issueKey:'CMP-103',title:'Everyday SPF Test',brand:'Serein Skin',creator:'Ishita Kapoor',owner:'Meera Nair',status:'In Progress',priority:'Urgent',dueDate:'2026-09-18',brief:'A clear, credible wear test that shows application and finish across a full day.',objective:'Support launch consideration with a practical product demonstration.',deliverables:'1 Reel + 4 Stories',audience:'Skincare shoppers, 18–30',publicationDate:'2026-09-20',blocker:'',nextAction:'Creator shares first cut for review.',agreement:{deliverables:'1 Reel + 4 Stories',fee:'',usageRights:'Organic only',revisions:'1 revision round',paymentTerms:'Net 30 from invoice'},publicationUrl:'',invoiceStatus:'Not submitted',paymentStatus:'Unpaid'},
-  {id:'c104',issueKey:'CMP-104',title:'City Light Layers',brand:'Kora Studio',creator:'Devika Rao',owner:'Priya Shah',status:'Published',priority:'Low',dueDate:'2026-09-10',brief:'Lightweight layering for changing city weather, photographed in natural afternoon light.',objective:'Showcase versatility of the new linen range.',deliverables:'1 Reel + 2 Stories',audience:'Contemporary fashion audience',publicationDate:'2026-09-10',blocker:'',nextAction:'Invoice attached; finance confirmation pending.',agreement:{deliverables:'1 Reel + 2 Stories',fee:'₹32,000',usageRights:'Organic + paid, 30 days',revisions:'2 rounds',paymentTerms:'Net 15 from invoice'},publicationUrl:'https://example.com/city-light',invoiceStatus:'Received',paymentStatus:'Pending'},
-  {id:'c105',issueKey:'CMP-105',title:'A Better Morning',brand:'Fieldnotes Coffee',creator:'Arjun Bhat',owner:'Kabir Rao',status:'Paid',priority:'Medium',dueDate:'2026-08-28',brief:'A calm, repeatable morning coffee ritual, from grind to the first cup.',objective:'Introduce the new single-origin drop to existing subscribers.',deliverables:'1 Reel + 3 Stories',audience:'Specialty coffee drinkers, 25–40',publicationDate:'2026-08-28',blocker:'',nextAction:'Campaign closed.',agreement:{deliverables:'1 Reel + 3 Stories',fee:'₹24,000',usageRights:'Organic only',revisions:'1 round',paymentTerms:'Net 30 from invoice'},publicationUrl:'https://example.com/better-morning',invoiceStatus:'Received',paymentStatus:'Paid'},
- ],
- tasks:[
-  {id:'t1',campaignId:'c101',title:'Share first-cut Reel for review',assignee:'Aanya Deshmukh',dueDate:'2026-10-04',priority:'High',status:'Done',completed:true},
-  {id:'t2',campaignId:'c101',title:'Review first cut and consolidate notes',assignee:'Priya Shah',dueDate:'2026-10-06',priority:'High',status:'In Progress',completed:false},
-  {id:'t3',campaignId:'c101',title:'Submit invoice after publication',assignee:'Priya Shah',dueDate:'2026-10-14',priority:'Medium',status:'To Do',completed:false},
-  {id:'t4',campaignId:'c101',title:'Confirm payment closeout',assignee:'Finance team',dueDate:'2026-11-13',priority:'Low',status:'To Do',completed:false},
-  {id:'t5',campaignId:'c102',title:'Revise caption and product tags',assignee:'Rhea Menon',dueDate:'2026-09-22',priority:'High',status:'To Do',completed:false},
-  {id:'t6',campaignId:'c102',title:'Confirm payment terms',assignee:'Kabir Rao',dueDate:'2026-09-21',priority:'Medium',status:'To Do',completed:false},
-  {id:'t7',campaignId:'c103',title:'Send product and shoot notes',assignee:'Meera Nair',dueDate:'2026-09-12',priority:'Urgent',status:'Done',completed:true},
-  {id:'t8',campaignId:'c103',title:'Deliver first cut',assignee:'Ishita Kapoor',dueDate:'2026-09-16',priority:'Urgent',status:'In Progress',completed:false},
-  {id:'t9',campaignId:'c104',title:'Confirm invoice receipt',assignee:'Priya Shah',dueDate:'2026-09-12',priority:'Medium',status:'Done',completed:true},
-  {id:'t10',campaignId:'c104',title:'Follow up on payment',assignee:'Finance team',dueDate:'2026-09-05',priority:'High',status:'To Do',completed:false},
-  {id:'t11',campaignId:'c105',title:'Log payment confirmation',assignee:'Kabir Rao',dueDate:'2026-09-02',priority:'Low',status:'Done',completed:true},
- ],
- activity:[
-  {id:'a1',campaignId:'c101',actor:'Priya Shah',message:'Moved campaign to In Review',timestamp:'2026-09-08T10:15:00'},
-  {id:'a2',campaignId:'c101',actor:'Aanya Deshmukh',message:'First-cut Reel submitted for review',timestamp:'2026-09-07T16:40:00'},
-  {id:'a3',campaignId:'c101',actor:'Priya Shah',message:'Agreement confirmed: ₹27,000 · Organic only',timestamp:'2026-09-05T12:10:00'},
-  {id:'a4',campaignId:'c102',actor:'Kabir Rao',message:'Brand requested caption and product tag changes',timestamp:'2026-09-08T14:20:00'},
-  {id:'a5',campaignId:'c103',actor:'Meera Nair',message:'Campaign moved to In Progress',timestamp:'2026-09-07T09:30:00'},
-  {id:'a6',campaignId:'c105',actor:'Kabir Rao',message:'Payment confirmed; campaign closed',timestamp:'2026-09-03T11:30:00'},
- ]
-};
-const nav = [
- {href:'/',label:'Campaigns',icon:BriefcaseBusiness},
- {href:'/my-work',label:'My work',icon:ListTodo},
- {href:'/board',label:'Task board',icon:LayoutGrid},
- {href:'/agreements',label:'Agreements',icon:FileCheck2},
- {href:'/reports',label:'Reports',icon:Activity},
- {href:'/settings',label:'Settings',icon:Settings},
-];
-const statusOptions:Status[]=['Draft','In Progress','In Review','Changes Requested','Published','Paid'];
-const priorityOptions:Priority[]=['Low','Medium','High','Urgent'];
-const tasksStatuses=['To Do','In Progress','Done'];
-const blankCampaign=(id:string,key:string):Campaign=>({id,issueKey:key,title:'',brand:'',creator:'',owner:'',status:'Draft',priority:'Medium',dueDate:'',brief:'',objective:'',deliverables:'',audience:'',publicationDate:'',blocker:'',nextAction:'',agreement:{deliverables:'',fee:'',usageRights:'',revisions:'',paymentTerms:''},publicationUrl:'',invoiceStatus:'Not submitted',paymentStatus:'Unpaid'});
-const initials=(name:string)=>name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
-const prettyDate=(date:string)=>date?new Date(`${date}T12:00:00`).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
-const isOverdue=(date:string)=>!!date&&new Date(`${date}T23:59:59`).getTime()<Date.now();
-const missingTerms=(c:Campaign)=>Object.values(c.agreement).filter(v=>!v.trim()).length;
-function Badge({value}: {value:string}) { return <span className={`status ${value.toLowerCase().replaceAll(' ','-')}`}>{value}</span>; }
-function Field({label,children,full=false}:{label:string;children:ReactNode;full?:boolean}) {return <div className={`field ${full?'full':''}`}><label>{label}</label><div className="field-value">{children}</div></div>}
+function RoutedErrorBoundary({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+  return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+}
+
+function Router() {
+  return (
+    <Shell>
+      <RoutedErrorBoundary>
+        <Switch>
+          <Route path="/" component={CampaignList} />
+          <Route path="/campaigns/:id">{(p) => <CampaignDetail id={p.id} />}</Route>
+          <Route path="/my-work" component={MyWorkPage} />
+          <Route path="/board" component={BoardPage} />
+          <Route path="/agreements" component={AgreementsPage} />
+          <Route path="/reports" component={ReportsPage} />
+          <Route path="/settings" component={SettingsPage} />
+          <Route component={NotFound} />
+        </Switch>
+      </RoutedErrorBoundary>
+    </Shell>
+  );
+}
 
 function App() {
- const [location,setLocation]=useLocation();
- const [data,setData]=useState<Store>(()=>{try{const raw=localStorage.getItem('campaign-desk-state');return raw?JSON.parse(raw) as Store:seed;}catch{return seed;}});
- const [search,setSearch]=useState('');
- const [modal,setModal]=useState<'campaign'|'task'|null>(null);
- const [toast,setToast]=useState('');
- const [tab,setTab]=useState('Overview');
- const [campaignFilter,setCampaignFilter]=useState({status:'All statuses',owner:'All owners',sort:'Due date'});
- const [taskCampaign,setTaskCampaign]=useState('all');
- const [editCampaign,setEditCampaign]=useState<Campaign|null>(null);
- const [editTask,setEditTask]=useState<Task|null>(null);
- const [campaignDraft,setCampaignDraft]=useState<Campaign>(blankCampaign('',''));
- const [taskDraft,setTaskDraft]=useState<Task>({id:'',campaignId:'',title:'',assignee:'',dueDate:'',priority:'Medium',status:'To Do',completed:false});
- useEffect(()=>{localStorage.setItem('campaign-desk-state',JSON.stringify(data));},[data]);
- useEffect(()=>{if(toast){const t=window.setTimeout(()=>setToast(''),2600);return()=>window.clearTimeout(t);}},[toast]);
- const updateCampaign=(id:string,patch:Partial<Campaign>,message?:string)=>{
-  setData(prev=>{const c=prev.campaigns.find(x=>x.id===id);return {...prev,campaigns:prev.campaigns.map(x=>x.id===id?{...x,...patch}:x),activity:message?[{id:crypto.randomUUID(),campaignId:id,actor:'You',message,timestamp:new Date().toISOString()},...prev.activity]:prev.activity};});
-  if(message)setToast(message);
- };
- const updateTask=(id:string,patch:Partial<Task>,message='Task updated')=>{
-  setData(prev=>{const task=prev.tasks.find(t=>t.id===id);if(!task)return prev;const next={...task,...patch};return {...prev,tasks:prev.tasks.map(t=>t.id===id?next:t),activity:[{id:crypto.randomUUID(),campaignId:task.campaignId,actor:'You',message:`${next.title}: ${message}`,timestamp:new Date().toISOString()},...prev.activity]};});
-  setToast(message);
- };
- const newCampaign=()=>{setEditCampaign(null);const n=data.campaigns.length+101;setCampaignDraft(blankCampaign(`c${Date.now()}`,`CMP-${n}`));setModal('campaign');};
- const openEdit=(c:Campaign)=>{setEditCampaign(c);setCampaignDraft({...c,agreement:{...c.agreement}});setModal('campaign');};
- const saveCampaign=()=>{
-  if(!campaignDraft.title.trim()||!campaignDraft.brand.trim()||!campaignDraft.creator.trim()){setToast('Add a campaign title, brand and creator to continue.');return;}
-  if(editCampaign){updateCampaign(editCampaign.id,campaignDraft,'Campaign details saved');}
-  else {setData(p=>({...p,campaigns:[campaignDraft,...p.campaigns],activity:[{id:crypto.randomUUID(),campaignId:campaignDraft.id,actor:'You',message:'Campaign created',timestamp:new Date().toISOString()},...p.activity]}));setToast(`${campaignDraft.issueKey} created`);setLocation(`/campaigns/${campaignDraft.id}`);}
-  setModal(null);
- };
- const openTask=(campaignId:string,task?:Task)=>{setEditTask(task||null);setTaskDraft(task?{...task}:{id:`t${Date.now()}`,campaignId,title:'',assignee:'',dueDate:'',priority:'Medium',status:'To Do',completed:false});setModal('task');};
- const saveTask=()=>{if(!taskDraft.title.trim()||!taskDraft.assignee.trim()||!taskDraft.campaignId){setToast('Task title, assignee and campaign are required.');return;}
-  if(editTask)updateTask(editTask.id,taskDraft,'Task details saved');else{setData(p=>({...p,tasks:[taskDraft,...p.tasks],activity:[{id:crypto.randomUUID(),campaignId:taskDraft.campaignId,actor:'You',message:`Task added: ${taskDraft.title}`,timestamp:new Date().toISOString()},...p.activity]}));setToast('Task added');}
-  setModal(null);
- };
- const pathMatch=location.match(/^\/campaigns\/([^/]+)/);
- const activeCampaign=pathMatch?data.campaigns.find(c=>c.id===pathMatch[1]):undefined;
- const query=search.trim().toLowerCase();
- const filteredCampaigns=useMemo(()=>{
-  let list=data.campaigns.filter(c=>{
-   const match=!query||[c.issueKey,c.title,c.brand,c.creator,c.owner,...data.tasks.filter(t=>t.campaignId===c.id).map(t=>t.title)].join(' ').toLowerCase().includes(query);
-   return match&&(campaignFilter.status==='All statuses'||c.status===campaignFilter.status)&&(campaignFilter.owner==='All owners'||c.owner===campaignFilter.owner);
-  });
-  return list.sort((a,b)=>campaignFilter.sort==='Name'?a.title.localeCompare(b.title):campaignFilter.sort==='Status'?a.status.localeCompare(b.status):a.dueDate.localeCompare(b.dueDate));
- },[data,query,campaignFilter]);
- const allTasks=data.tasks.filter(t=>!query||`${t.title} ${t.assignee} ${data.campaigns.find(c=>c.id===t.campaignId)?.title||''} ${data.campaigns.find(c=>c.id===t.campaignId)?.issueKey||''}`.toLowerCase().includes(query));
- const owners=Array.from(new Set(data.campaigns.map(c=>c.owner).filter(Boolean)));
- const heading=location==='/'?'Campaigns':location==='/my-work'?'My work':location==='/board'?'Task board':location==='/agreements'?'Agreements':location==='/reports'?'Reports':location==='/settings'?'Settings':'Campaign';
- const setAgreement=(key:keyof Agreement,value:string)=>{if(activeCampaign)updateCampaign(activeCampaign.id,{agreement:{...activeCampaign.agreement,[key]:value}},'Agreement saved');};
-
- const CampaignTable=({rows}:{rows:Campaign[]})=><div className="table-wrap"><table className="data-table"><thead><tr><th>Campaign</th><th>Creator</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due date</th><th>Terms</th><th>Next action</th></tr></thead><tbody>{rows.map(c=><tr key={c.id} data-testid={`row-campaign-${c.id}`} onClick={()=>{setTab('Overview');setLocation(`/campaigns/${c.id}`);}} style={{cursor:'pointer'}}><td><span className="issue-key">{c.issueKey}</span><Link className="issue-title" href={`/campaigns/${c.id}`}>{c.title}</Link><span className="issue-brand">{c.brand}</span></td><td><div className="creator-cell"><span className="avatar">{initials(c.creator)}</span>{c.creator}</div></td><td>{c.owner||'Unassigned'}</td><td><Badge value={c.status}/></td><td><span className={`priority ${c.priority.toLowerCase()}`}>{c.priority}</span></td><td><span className={isOverdue(c.dueDate)?'due overdue':'due'}>{prettyDate(c.dueDate)}</span></td><td>{missingTerms(c)?<span className="missing">{missingTerms(c)} missing</span>:<span className="confirmed">Complete</span>}</td><td style={{maxWidth:190}}><span style={{display:'block',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.nextAction||'—'}</span></td></tr>)}</tbody></table>{!rows.length&&<div className="empty-state"><strong>No campaigns match</strong>Try changing your search or filters.</div>}</div>;
- const TaskList=({tasks}:{tasks:Task[]})=><div className="panel"><div className="panel-head"><h3 className="section-title">Tasks <span className="count-label">({tasks.length})</span></h3><button className="button" onClick={()=>openTask(activeCampaign?.id||data.campaigns[0]?.id||'')} data-testid="button-add-task"><Plus/>Add task</button></div><div className="panel-body">{tasks.map(t=>{const c=data.campaigns.find(x=>x.id===t.campaignId);return <div className="task-row" key={t.id}><input aria-label={`Complete ${t.title}`} className="check" type="checkbox" checked={t.completed} onChange={e=>updateTask(t.id,{completed:e.target.checked,status:e.target.checked?'Done':'In Progress'},e.target.checked?'Task completed':'Task reopened')}/><button className="button ghost task-title" onClick={()=>openTask(t.campaignId,t)}>{t.title}</button><span className="task-due">{t.assignee}</span><span className={isOverdue(t.dueDate)&&!t.completed?'task-due due overdue':'task-due'}>{prettyDate(t.dueDate)}</span><Badge value={t.status}/>{!activeCampaign&&c&&<span className="issue-key">{c.issueKey}</span>}</div>;})}{!tasks.length&&<div className="empty-state">No tasks here yet.</div>}</div></div>;
-
- const AgreementPanel=({campaign}:{campaign:Campaign})=><div className="panel"><div className="panel-head"><h3 className="section-title">Agreed terms</h3><span className={missingTerms(campaign)?'missing':'confirmed'}>{missingTerms(campaign)?`${missingTerms(campaign)} terms missing`:'All terms confirmed'}</span></div><div className="panel-body">{([['deliverables','Deliverables'],['fee','Fee'],['usageRights','Usage rights'],['revisions','Revisions'],['paymentTerms','Payment terms']] as [keyof Agreement,string][]).map(([k,label])=><div className="agreement-row" key={k}><span className="agreement-label">{label}</span><input aria-label={label} className="field-edit" value={campaign.agreement[k]} placeholder="Not agreed" onChange={e=>setData(p=>({...p,campaigns:p.campaigns.map(c=>c.id===campaign.id?{...c,agreement:{...c.agreement,[k]:e.target.value}}:c)}))} onBlur={()=>setToast('Agreement updated')}/><span className={campaign.agreement[k]?'confirmed':'missing'}>{campaign.agreement[k]?'Confirmed':'Missing'}</span></div>)}</div></div>;
-
- const ActivityList=({campaignId}:{campaignId:string})=><div className="panel"><div className="panel-head"><h3 className="section-title">Activity</h3></div><div className="panel-body">{data.activity.filter(a=>a.campaignId===campaignId).map(a=><div className="activity-item" key={a.id}><span className="activity-dot"/><div><strong>{a.actor}</strong> {a.message}<div className="activity-time">{new Date(a.timestamp).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div></div>)}</div></div>;
-
- const detailContent=activeCampaign?<>
-  <div className="breadcrumbs"><Link href="/">Campaigns</Link><ChevronRight size={12}/><span>{activeCampaign.issueKey}</span></div>
-  <div className="detail-top"><div><div className="detail-meta"><span className="issue-key">{activeCampaign.issueKey}</span><span>Campaign</span><Badge value={activeCampaign.status}/></div><h1 className="detail-title">{activeCampaign.title}</h1><div className="detail-meta">{activeCampaign.brand}<span>·</span>{activeCampaign.creator}<span>·</span>Owner: {activeCampaign.owner||'Unassigned'}</div></div><div className="detail-actions"><button className="button" onClick={()=>openEdit(activeCampaign)}><Pencil/>Edit campaign</button><button className="button primary" onClick={()=>openTask(activeCampaign.id)}><Plus/>Add task</button></div></div>
-  <div className="tabs">{['Overview','Agreement','Tasks','Activity','Closeout'].map(t=><button className={`tab ${tab===t?'active':''}`} key={t} onClick={()=>setTab(t)}>{t}</button>)}</div>
-  {tab==='Overview'&&<div className="detail-grid"><div className="stack"><div className="panel"><div className="panel-head"><h3 className="section-title">Campaign brief</h3><span className="count-label">Scope &amp; objective</span></div><div className="panel-body"><div className="field-grid"><Field label="Brief" full>{activeCampaign.brief||'Add a concise campaign brief.'}</Field><Field label="Objective">{activeCampaign.objective||'—'}</Field><Field label="Deliverables">{activeCampaign.deliverables||'—'}</Field><Field label="Audience">{activeCampaign.audience||'—'}</Field><Field label="Publication date">{prettyDate(activeCampaign.publicationDate)}</Field></div></div></div><TaskList tasks={data.tasks.filter(t=>t.campaignId===activeCampaign.id).slice(0,4)}/></div><div className="stack"><div className="panel"><div className="panel-head"><h3 className="section-title">At a glance</h3></div><div className="panel-body"><div className="side-fact"><span>Priority</span><strong>{activeCampaign.priority}</strong></div><div className="side-fact"><span>Due date</span><strong className={isOverdue(activeCampaign.dueDate)?'due overdue':''}>{prettyDate(activeCampaign.dueDate)}</strong></div><div className="side-fact"><span>Blocker</span><strong>{activeCampaign.blocker||'None'}</strong></div><div className="side-fact"><span>Next action</span><strong style={{textAlign:'right',maxWidth:160}}>{activeCampaign.nextAction||'—'}</strong></div><button className="button" style={{marginTop:12,width:'100%',justifyContent:'center'}} onClick={()=>setTab('Agreement')}>Review agreement</button></div></div><ActivityList campaignId={activeCampaign.id}/></div></div>}
-  {tab==='Agreement'&&<div style={{maxWidth:820}}><AgreementPanel campaign={activeCampaign}/><p className="count-label" style={{marginTop:9}}>Edits save as you leave each field. Missing terms remain visible until explicitly agreed.</p></div>}
-  {tab==='Tasks'&&<div style={{maxWidth:960}}><TaskList tasks={data.tasks.filter(t=>t.campaignId===activeCampaign.id)}/></div>}
-  {tab==='Activity'&&<div style={{maxWidth:800}}><ActivityList campaignId={activeCampaign.id}/></div>}
-  {tab==='Closeout'&&<div className="detail-grid"><div className="panel"><div className="panel-head"><h3 className="section-title">Publication &amp; payment closeout</h3><span className="count-label">Status tracking only</span></div><div className="panel-body"><div className="form-grid"><div className="form-field wide"><label>Publication URL</label><input aria-label="Publication URL" placeholder="Paste published post URL" value={activeCampaign.publicationUrl} onChange={e=>setData(p=>({...p,campaigns:p.campaigns.map(c=>c.id===activeCampaign.id?{...c,publicationUrl:e.target.value}:c)}))} onBlur={()=>setToast('Publication details saved')}/></div><div className="form-field"><label>Invoice status</label><select aria-label="Invoice status" value={activeCampaign.invoiceStatus} onChange={e=>updateCampaign(activeCampaign.id,{invoiceStatus:e.target.value},'Invoice status updated')}><option>Not submitted</option><option>Submitted</option><option>Received</option><option>Approved</option></select></div><div className="form-field"><label>Payment status</label><select aria-label="Payment status" value={activeCampaign.paymentStatus} onChange={e=>{const val=e.target.value;updateCampaign(activeCampaign.id,{paymentStatus:val,...(val==='Paid'?{status:'Paid' as Status}:{})},'Payment status updated');}}><option>Unpaid</option><option>Pending</option><option>Paid</option></select></div></div><p className="count-label" style={{marginTop:14}}>Campaign Desk records team-entered closeout status. It does not process or verify payments.</p></div></div><div className="stack"><div className="panel"><div className="panel-head"><h3 className="section-title">Closeout checklist</h3></div><div className="panel-body"><div className="side-fact"><span>Published</span><strong>{activeCampaign.publicationUrl?'URL recorded':'Awaiting URL'}</strong></div><div className="side-fact"><span>Invoice</span><Badge value={activeCampaign.invoiceStatus}/></div><div className="side-fact"><span>Payment</span><Badge value={activeCampaign.paymentStatus}/></div><div className="side-fact"><span>Fee agreed</span><strong>{activeCampaign.agreement.fee||'Missing'}</strong></div></div></div><TaskList tasks={data.tasks.filter(t=>t.campaignId===activeCampaign.id&&/invoice|payment/i.test(t.title))}/></div></div>}
- </>:<div className="content"><div className="page-heading"><div><h1>Campaign not found</h1><p>This campaign may have been removed.</p></div><Link className="button" href="/">Back to campaigns</Link></div></div>;
-
- return <div className="app-shell">
-  <aside className="sidebar"><Link className="brand" href="/"><span className="brand-mark">CD</span>Campaign Desk</Link><div className="workspace-label">Workspace</div><nav className="nav-list">{nav.map(item=>{const Icon=item.icon;const active=item.href==='/'?location==='/'||location.startsWith('/campaigns/'):location===item.href;return <Link key={item.href} href={item.href} className={`nav-link ${active?'active':''}`}><Icon/>{item.label}</Link>;})}</nav><div className="side-footer"><span className="avatar">PS</span><span>Priya Shah · Brand team</span><CircleHelp size={14} style={{marginLeft:'auto'}}/></div></aside>
-  <div className="main-area"><header className="topbar"><div className="top-search"><Search/><input data-testid="input-global-search" type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search campaigns, creators, tasks…" aria-label="Search campaigns, creators, tasks"/></div><div className="top-right"><span>{query?`${filteredCampaigns.length} campaigns · ${allTasks.length} tasks`: 'Mon, 08 Sep 2026'}</span><span className="avatar">PS</span><span className="user-name">Priya Shah</span></div></header>
-   {pathMatch?detailContent:location==='/'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>Campaigns</span></div><div className="page-heading"><div><h1>Campaigns</h1><p>Scope, ownership and closeout in one working list.</p></div><button className="button primary" onClick={newCampaign} data-testid="button-create-campaign"><Plus/>Create campaign</button></div><div className="toolbar"><div className="toolbar-left"><SlidersHorizontal size={14} color="#77818d"/><select aria-label="Filter by status" className="compact-select" value={campaignFilter.status} onChange={e=>setCampaignFilter({...campaignFilter,status:e.target.value})}><option>All statuses</option>{statusOptions.map(x=><option key={x}>{x}</option>)}</select><select aria-label="Filter by owner" className="compact-select" value={campaignFilter.owner} onChange={e=>setCampaignFilter({...campaignFilter,owner:e.target.value})}><option>All owners</option>{owners.map(x=><option key={x}>{x}</option>)}</select><span className="count-label">{filteredCampaigns.length} campaigns</span></div><div className="toolbar-right"><ArrowDownUp size={13} color="#77818d"/><select aria-label="Sort campaigns" className="compact-select" value={campaignFilter.sort} onChange={e=>setCampaignFilter({...campaignFilter,sort:e.target.value})}><option>Due date</option><option>Name</option><option>Status</option></select></div></div><CampaignTable rows={filteredCampaigns}/><div style={{fontSize:10,color:'#8a929d',marginTop:9}}>Showing active workspace campaigns · Due dates in local time</div></main>
-   :location==='/my-work'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>My work</span></div><div className="page-heading"><div><h1>My work</h1><p>Tasks assigned to you, across campaign workspaces.</p></div><button className="button primary" onClick={()=>openTask(data.campaigns[0]?.id||'')}><Plus/>Add task</button></div><div className="toolbar"><div className="toolbar-left"><select aria-label="Filter tasks by campaign" className="compact-select" value={taskCampaign} onChange={e=>setTaskCampaign(e.target.value)}><option value="all">All campaigns</option>{data.campaigns.map(c=><option key={c.id} value={c.id}>{c.issueKey} · {c.title}</option>)}</select><span className="count-label">{allTasks.filter(t=>t.assignee==='Priya Shah'&&(taskCampaign==='all'||t.campaignId===taskCampaign)).length} assigned to Priya Shah</span></div></div><TaskList tasks={allTasks.filter(t=>t.assignee==='Priya Shah'&&(taskCampaign==='all'||t.campaignId===taskCampaign))}/><div style={{marginTop:18}}><h3 className="section-title" style={{marginBottom:10}}>All workspace tasks</h3><TaskList tasks={allTasks.filter(t=>taskCampaign==='all'||t.campaignId===taskCampaign)}/></div></main>
-   :location==='/board'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>Task board</span></div><div className="page-heading"><div><h1>Task board</h1><p>Move work through the workflow; changes carry to every campaign view.</p></div><button className="button primary" onClick={()=>openTask(data.campaigns[0]?.id||'')}><Plus/>Add task</button></div><div className="board-grid">{tasksStatuses.map(status=>{const tasks=allTasks.filter(t=>t.status===status);return <section className="board-column" key={status}><div className="board-head">{status}<span>{tasks.length}</span></div><div className="board-cards">{tasks.map(t=>{const c=data.campaigns.find(x=>x.id===t.campaignId);return <article className="board-card" key={t.id}><span className="issue-key">{c?.issueKey||'—'}</span><button className="button ghost board-card-title" onClick={()=>openTask(t.campaignId,t)}>{t.title}</button><div className="board-card-foot"><span>{t.assignee}</span><span className={isOverdue(t.dueDate)&&!t.completed?'due overdue':''}>{prettyDate(t.dueDate)}</span></div><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:9}}><span className={`priority ${t.priority.toLowerCase()}`}>{t.priority}</span><select aria-label={`Move ${t.title}`} className="compact-select" value={t.status} onChange={e=>updateTask(t.id,{status:e.target.value,completed:e.target.value==='Done'},`Moved to ${e.target.value}`)}>{tasksStatuses.map(s=><option key={s}>{s}</option>)}</select></div></article>;})}{!tasks.length&&<div className="empty-state" style={{padding:'25px 8px'}}>Nothing queued.</div>}</div></section>})}</div></main>
-   :location==='/agreements'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>Agreements</span></div><div className="page-heading"><div><h1>Agreements</h1><p>Confirm scope and commercial terms before work moves forward.</p></div></div><div className="toolbar"><span className="count-label">{data.campaigns.filter(c=>missingTerms(c)>0).length} campaigns with missing terms</span></div><div className="table-wrap"><table className="data-table"><thead><tr><th>Campaign</th><th>Creator</th><th>Deliverables</th><th>Fee</th><th>Usage rights</th><th>Revisions</th><th>Payment terms</th><th>Coverage</th></tr></thead><tbody>{data.campaigns.map(c=><tr key={c.id}><td><Link href={`/campaigns/${c.id}`} className="issue-title">{c.issueKey} · {c.title}</Link><span className="issue-brand">{c.brand}</span></td><td>{c.creator}</td>{Object.entries(c.agreement).map(([k,v])=><td key={k}>{v||<span className="missing">Missing</span>}</td>)}<td><span className={missingTerms(c)?'missing':'confirmed'}>{missingTerms(c)?`${missingTerms(c)} missing`:'Complete'}</span></td></tr>)}</tbody></table></div></main>
-   :location==='/reports'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>Reports</span></div><div className="page-heading"><div><h1>Reports</h1><p>A focused view of operational reporting.</p></div></div><div className="page-card"><h3 className="section-title">Reporting is not configured</h3><p className="report-note">Campaign Desk is focused on reliable campaign scope and closeout first. A reporting view will be useful once the team has agreed on source data and definitions. For now, campaign status, agreement gaps, overdue tasks and payment tracking remain available in their working lists.</p></div></main>
-   :location==='/settings'?<main className="content"><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={12}/><span>Settings</span></div><div className="page-heading"><div><h1>Workspace settings</h1><p>Local workspace preferences and data controls.</p></div></div><div className="page-card" style={{maxWidth:760}}><div className="settings-section"><div><strong>Workspace name</strong><small>Workspace identity shown in navigation.</small></div><input aria-label="Workspace name" className="field-edit" style={{maxWidth:220}} defaultValue="Campaign Desk" onBlur={()=>setToast('Workspace setting saved')}/></div><div className="settings-section"><div><strong>Default currency</strong><small>Display currency for agreement fees.</small></div><select aria-label="Default currency" className="compact-select" onChange={()=>setToast('Currency preference saved')}><option>INR · ₹</option><option>USD · $</option><option>GBP · £</option></select></div><div className="settings-section"><div><strong>Campaign data</strong><small>Seeded and edited workspace data is stored in this browser.</small></div><button className="button danger" onClick={()=>{if(window.confirm('Reset all local campaign data to the original sample workspace?')){setData(seed);setToast('Workspace reset to sample data');}}}>Reset sample data</button></div><div className="settings-section"><div><strong>Local storage</strong><small>Nothing is sent to an external service.</small></div><Badge value="Enabled"/></div></div></main>:<main className="content"><div className="page-heading"><h1>{heading}</h1></div></main>}
-  </div>
-  {modal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(null);}}><div className="modal" role="dialog" aria-modal="true"><div className="modal-head"><h2>{modal==='campaign'?(editCampaign?'Edit campaign':'Create campaign'):editTask?'Edit task':'Add task'}</h2><button className="button ghost" aria-label="Close dialog" onClick={()=>setModal(null)}><X/></button></div><div className="modal-content">{modal==='campaign'?<div className="form-grid">
-   {([['title','Campaign title'],['brand','Brand'],['creator','Creator'],['owner','Owner']] as [keyof Campaign,string][]).map(([key,label])=><div className="form-field" key={key}><label>{label} *</label><input value={campaignDraft[key] as string} onChange={e=>setCampaignDraft({...campaignDraft,[key]:e.target.value})} placeholder={label}/></div>)}
-   <div className="form-field"><label>Status</label><select value={campaignDraft.status} onChange={e=>setCampaignDraft({...campaignDraft,status:e.target.value as Status})}>{statusOptions.map(s=><option key={s}>{s}</option>)}</select></div><div className="form-field"><label>Priority</label><select value={campaignDraft.priority} onChange={e=>setCampaignDraft({...campaignDraft,priority:e.target.value as Priority})}>{priorityOptions.map(s=><option key={s}>{s}</option>)}</select></div><div className="form-field"><label>Due date</label><input type="date" value={campaignDraft.dueDate} onChange={e=>setCampaignDraft({...campaignDraft,dueDate:e.target.value})}/></div><div className="form-field"><label>Publication date</label><input type="date" value={campaignDraft.publicationDate} onChange={e=>setCampaignDraft({...campaignDraft,publicationDate:e.target.value})}/></div><div className="form-field wide"><label>Campaign brief</label><textarea value={campaignDraft.brief} onChange={e=>setCampaignDraft({...campaignDraft,brief:e.target.value})}/></div><div className="form-field"><label>Deliverables</label><input value={campaignDraft.deliverables} onChange={e=>setCampaignDraft({...campaignDraft,deliverables:e.target.value})}/></div><div className="form-field"><label>Objective</label><input value={campaignDraft.objective} onChange={e=>setCampaignDraft({...campaignDraft,objective:e.target.value})}/></div>
-  </div>:<div className="form-grid"><div className="form-field wide"><label>Task title *</label><input autoFocus value={taskDraft.title} onChange={e=>setTaskDraft({...taskDraft,title:e.target.value})} placeholder="What needs to happen?"/></div><div className="form-field"><label>Campaign *</label><select value={taskDraft.campaignId} onChange={e=>setTaskDraft({...taskDraft,campaignId:e.target.value})}>{data.campaigns.map(c=><option key={c.id} value={c.id}>{c.issueKey} · {c.title}</option>)}</select></div><div className="form-field"><label>Assignee *</label><input value={taskDraft.assignee} onChange={e=>setTaskDraft({...taskDraft,assignee:e.target.value})} placeholder="Person or team"/></div><div className="form-field"><label>Due date</label><input type="date" value={taskDraft.dueDate} onChange={e=>setTaskDraft({...taskDraft,dueDate:e.target.value})}/></div><div className="form-field"><label>Priority</label><select value={taskDraft.priority} onChange={e=>setTaskDraft({...taskDraft,priority:e.target.value as Priority})}>{priorityOptions.map(s=><option key={s}>{s}</option>)}</select></div><div className="form-field"><label>Status</label><select value={taskDraft.status} onChange={e=>setTaskDraft({...taskDraft,status:e.target.value,completed:e.target.value==='Done'})}>{tasksStatuses.map(s=><option key={s}>{s}</option>)}</select></div></div>}</div><div className="modal-foot"><button className="button" onClick={()=>setModal(null)}>Cancel</button><button className="button primary" onClick={modal==='campaign'?saveCampaign:saveTask}><Save/>{modal==='campaign'?(editCampaign?'Save changes':'Create campaign'):editTask?'Save task':'Add task'}</button></div></div></div>}
-  {toast&&<div className="toast" role="status">{toast}</div>}
- </div>;
+  return (
+    <StoreProvider>
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <Router />
+      </WouterRouter>
+    </StoreProvider>
+  );
 }
 
 export default App;
