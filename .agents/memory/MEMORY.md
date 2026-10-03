@@ -1,1 +1,2 @@
 - [Chart compatibility](chart-compatibility.md) — Recharts 2 with React 19 can silently omit chart axes inside fragments; pass chart children directly.
+- [Preview JSX compatibility](preview-jsx-compatibility.md) — Development instrumentation can break explicit JSX generic arguments despite passing TypeScript and production builds.
