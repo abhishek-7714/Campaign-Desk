@@ -1,6 +1,6 @@
-# Campaign Desk
+# nano.club
 
-A creator-campaign operations prototype for explicit agreements, shared task ownership and deadlines, and publication/payment closeout.
+A front-end prototype of nano.club: find creators, run campaigns, and see what every post delivered against what the brand paid for. All numbers are sample data.
 
 ## Run & Operate
 
@@ -23,29 +23,25 @@ A creator-campaign operations prototype for explicit agreements, shared task own
 ## Architecture decisions
 
 - Keep this prototype client-only with local seeded data and browser persistence.
-  **Why:** The user explicitly requested no authentication, database, API keys, or third-party services for the first prototype.
+  **Why:** The first prototype needs no authentication, database, API keys or third-party services.
 - Publication, invoice, and payment fields are team-entered status tracking, not externally verified facts or payment processing.
   **Why:** The prototype tests end-to-end coordination, not financial infrastructure.
-- Operational summaries must be derived from saved campaigns and tasks. Engagement and historical trend measurements are explicitly labeled fictional demo data.
-  **Why:** The requested visual reporting has no connected analytics source; presentation must not imply live or externally measured results.
+- Performance numbers are generated sample data (see `src/domain/performance.ts`). Metrics are always derived from posts and snapshots through that file, never computed in screens.
+  **Why:** One definition of each number keeps every screen consistent, and the prototype must not imply live or externally measured results.
 
 ## Product
 
-The user is validating three hypotheses:
-1. Explicit campaign terms reduce scope ambiguity.
-2. Clear owners and deadlines reduce coordination effort.
-3. One campaign workspace makes publication and payment status easier to manage.
+nano.club is a creator marketplace and campaign tracker for D2C brands in India. Brands find creators, run campaigns, and see per post what each creator delivered against the views the brand paid for. Creators have their own view (Brand / Creator switch in the sidebar). Strategy and brand notes are in PRODUCT.md.
 
-Core surfaces are a Home command center, campaign gallery and detail workspace, agreement-health cards, task board, personal work queue, visual reports, activity history, and closeout tracking.
+Core surfaces: Home, Campaigns (programmes), Marketplace (directory, profiles, compare), Collaborations (one creator on one campaign, with agreement, tasks and closeout), the campaign performance grid, Reports, and the Creator view (opportunities, my work, profile).
 
 ## User preferences
 
-- Open directly into Home, not Campaigns. The user explicitly requested a fundamental redesign, not decorated tables.
-- No table-first Campaigns, My Work, Board, Agreements, or Reports pages. Use cards, visual summaries, charts, progress indicators, and timelines.
-- Use the supplied reference for hierarchy and visual rhythm, not its branding or exact layout.
-- Use a warm light base, light navigation, and semantic indigo/blue, lavender, yellow, coral, green, and mint accents.
-- Keep all existing editing, workflow validation, closeout, search, task movement, and local persistence functional.
-- Do not add AI chat, creator discovery/recommendations, messaging integrations, or payment processing.
+- Everything is sample data. The prototype ribbon says so and the UI must never imply live collection from Instagram or Shopify.
+- Reach, saves and shares are private to creators: show them as locked until a creator screenshot, a creator-connected account, or the brand's connected account (Collab posts) supplies them. Always show the source of a number.
+- Connect dialogs (Instagram, Shopify) are mocks.
+- UI copy is plain, with no em dashes. Prices use Indian formats (₹, K, L).
+- The performance grid is a dense table by design. Other screens stay card-based.
 
 ## Gotchas
 

@@ -30,8 +30,8 @@ export function ZeroState({ children }: { children: ReactNode }) {
   return <div className="chart-zero">{children}</div>;
 }
 
-const tip = { borderRadius: 12, border: '1px solid #ece6da', fontSize: 12, boxShadow: '0 8px 24px rgba(40,30,80,.12)' };
-const tick = { fontSize: 11, fill: '#7a7694' };
+const tip = { borderRadius: 12, border: '1px solid #dfe6e9', fontSize: 12, boxShadow: '0 8px 24px rgba(16,34,43,.12)' };
+const tick = { fontSize: 11, fill: '#5b6d77' };
 
 export interface Series { key: string; label: string; color: string }
 
@@ -41,7 +41,7 @@ export function TrendChart({ data, series, unit = '', area = false, height = 240
   if (zero) return <ZeroState>No values recorded in this range.</ZeroState>;
   const common = { data, margin: { top: 8, right: 8, left: 0, bottom: 0 } };
   const axes = [
-    <CartesianGrid key="grid" stroke="#efe9de" vertical={false} />,
+    <CartesianGrid key="grid" stroke="#e2e9ec" vertical={false} />,
     <XAxis key="dates" dataKey="date" tick={tick} tickLine={false} axisLine={false} tickFormatter={shortDate} minTickGap={24} />,
     <YAxis key="values" tick={tick} tickLine={false} axisLine={false} unit={unit} width={50} allowDecimals={unit === '%'} domain={[0, 'auto']} />,
     <Tooltip key="tooltip" contentStyle={tip} labelFormatter={(l) => shortDate(String(l))} formatter={(v: number, n: string) => [`${v}${unit}`, n]} />,
@@ -110,10 +110,10 @@ export function Bars({ data, series, height = 240 }: { data: Record<string, numb
     <div style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }} barGap={4}>
-          <CartesianGrid stroke="#efe9de" vertical={false} />
+          <CartesianGrid stroke="#e2e9ec" vertical={false} />
           <XAxis dataKey="name" tick={tick} tickLine={false} axisLine={false} tickFormatter={(n: string) => n.split(' ')[0]} />
           <YAxis tick={tick} tickLine={false} axisLine={false} allowDecimals={false} />
-          <Tooltip contentStyle={tip} cursor={{ fill: '#f4efe6' }} />
+          <Tooltip contentStyle={tip} cursor={{ fill: '#eaf0f2' }} />
           <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
           {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[6, 6, 0, 0]} maxBarSize={28} isAnimationActive={!reduced} animationDuration={350} />)}
         </BarChart>

@@ -42,7 +42,7 @@ export function CampaignCard({ c, i = 0 }: { c: Campaign; i?: number }) {
       </div>
       <h3><Link href={`/campaigns/${c.id}`} className="stretch">{c.title}</Link></h3>
       <p className="muted">{c.status} · {c.issueKey}</p>
-      <span className="eyebrow">Creator campaign</span>
+      <span className="eyebrow">Collaboration</span>
       <div className="ccard-people"><Person name={c.creator} /><span className="muted">for {c.owner}</span></div>
       <div className="ccard-prog"><Bar value={s.progress} tone={tone} label={`${c.title} progress`} /><b>{Math.round(s.progress)}%</b></div>
       <div className="ccard-foot">

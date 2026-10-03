@@ -1,40 +1,54 @@
 import { useMemo } from 'react';
 import { Link } from 'wouter';
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, Plus, Store } from 'lucide-react';
 import { useStore } from '@/state/store';
-import { campaignOverdue } from '@/domain/helpers';
-import { campaignHealth, campaignSignals, dashboardSummary } from '@/domain/analytics';
-import { DEMO_ENGAGEMENT, DEMO_METRICS } from '@/domain/demo-metrics';
+import { campaignOverdue, CURRENT_USER } from '@/domain/helpers';
+import { campaignSignals, dashboardSummary } from '@/domain/analytics';
 import { attentionItems } from '@/domain/attention';
-import { ago } from '@/domain/format';
-import { Bar, CampaignCard, Empty, PageTitle, Pill } from '@/components/viz/Cards';
-import { Spark } from '@/components/viz/Charts';
+import { ago, type Tone } from '@/domain/format';
+import { deliveryTone, programmeInsights, summarize } from '@/domain/performance';
+import { fmtINR, fmtINRShort, fmtNum, fmtPct } from '@/domain/money';
+import { CampaignCard, Empty, PageTitle, Pill } from '@/components/viz/Cards';
+import { Meter, Stat } from '@/components/shared';
+
+const DOT: Record<string, string> = { good: '#2f9a63', warn: '#d49a12', bad: '#e0594a', info: '#3b6fe0' };
 
 export default function Home() {
-  const { campaigns, tasks, activity, openDialog, campaignById } = useStore();
-  const sum = dashboardSummary(campaigns, tasks);
-  const health = campaignHealth(campaigns, tasks);
-  const total = health.reduce((a, h) => a + h.value, 0);
-  const attention = useMemo(() => attentionItems(campaigns, tasks).slice(0, 5), [campaigns, tasks]);
-  const live = useMemo(() => campaigns.filter((c) => c.status !== 'Complete')
+  const { campaigns, tasks, activity, campaignById, brandProgrammes, applications, gridRows } = useStore();
+  const ops = dashboardSummary(campaigns, tasks);
+  const live = brandProgrammes.find((p) => p.status === 'Live') ?? brandProgrammes.find((p) => p.status === 'Completed') ?? brandProgrammes[0];
+  const rows = useMemo(() => (live ? gridRows(live.id) : []), [live, gridRows]);
+  const sum = live ? summarize(rows, live) : null;
+  const insights = live ? programmeInsights(rows, live).slice(0, 4) : [];
+  const behind = rows.filter((r) => r.status === 'Late' || r.status === 'Missed');
+
+  const ids = new Set(brandProgrammes.map((p) => p.id));
+  const waiting = applications.filter((a) => ids.has(a.programmeId) && (a.status === 'Applied' || a.status === 'Shortlisted' || (a.status === 'Negotiating' && a.lastMoveBy === 'creator')));
+  const open = brandProgrammes.filter((p) => p.status === 'Open call');
+  const waitingProg = open.find((p) => waiting.some((a) => a.programmeId === p.id)) ?? open[0];
+
+  const attention = useMemo(() => attentionItems(campaigns, tasks).slice(0, 3), [campaigns, tasks]);
+  const activeCollabs = useMemo(() => campaigns.filter((c) => c.status !== 'Complete')
     .map((c) => ({ c, s: campaignSignals(c, tasks) }))
     .sort((a, b) => Number(b.s.attention) - Number(a.s.attention) || a.c.dueDate.localeCompare(b.c.dueDate)).slice(0, 4), [campaigns, tasks]);
-  const completion = sum.completionRate;
-  const tiles = [
-    { k: 'Active campaigns', v: sum.active, tone: 'blue', href: '/campaigns?filter=active', note: 'in motion' },
-    { k: 'Overdue', v: sum.overdue, tone: 'coral', href: '/campaigns?due=overdue', note: 'past due date' },
-    { k: 'Awaiting review', v: sum.review, tone: 'purple', href: '/campaigns?filter=review', note: 'need a decision' },
-    { k: 'Needs action', v: sum.needsAction, tone: 'yellow', href: '/campaigns?attention=1', note: 'open issues' },
-  ];
   const recent = activity.slice().sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 6);
-  const metric = [
-    { k: 'Engagement rate', v: `${DEMO_METRICS.engagementRate.toFixed(1)}%`, spark: 'engagementRate', color: '#3b6fe0' },
-    { k: 'Creator response rate', v: `${DEMO_METRICS.responseRate.toFixed(1)}%`, spark: 'responseRate', color: '#1f9c8f' },
+
+  const perfHref = live ? `/programmes/${live.id}?tab=performance` : '/programmes';
+  const tones: Record<string, Tone> = { green: 'green', yellow: 'yellow', coral: 'coral', neutral: 'neutral' };
+  const tiles = [
+    { k: 'Views delivered', v: sum?.deliveryPct != null ? fmtPct(sum.deliveryPct) : '-', tone: tones[deliveryTone(sum?.deliveryPct ?? null)] as Tone, href: perfHref, note: 'of the views you paid for' },
+    { k: 'Late or missed', v: behind.length, tone: 'coral' as Tone, href: perfHref, note: 'deliverables to chase' },
+    { k: 'Applications waiting', v: waiting.length, tone: 'purple' as Tone, href: waitingProg ? `/programmes/${waitingProg.id}?tab=creators` : '/programmes', note: 'need your decision' },
+    { k: 'Collaborations need action', v: ops.needsAction, tone: 'yellow' as Tone, href: '/campaigns?attention=1', note: 'terms, reviews, payments' },
   ];
+
   return (
     <>
-      <PageTitle title="Good morning, Abhishek." sub="Here's what needs your attention."
-        actions={<button className="btn primary lg" onClick={() => openDialog({ type: 'campaign' })} data-testid="button-new-campaign"><Plus size={16} />New campaign</button>} />
+      <PageTitle title={`Good morning, ${CURRENT_USER.split(' ')[0]}.`} sub="Here is how your creator campaigns are doing."
+        actions={<>
+          <Link href="/marketplace" className="btn lg"><Store size={16} />Find creators</Link>
+          <Link href="/programmes?new=1" className="btn primary lg" data-testid="button-new-campaign"><Plus size={16} />New campaign</Link>
+        </>} />
 
       <div className="tiles">
         {tiles.map((t, i) => (
@@ -44,65 +58,77 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="grid-2 mt">
-        <section className="card pulse" aria-label="Campaign pulse">
-          <div className="card-head"><div><h3>Campaign pulse</h3><p className="muted">Campaigns by state, live from your records</p></div></div>
-          {total ? (
-            <div className="seg-bar" role="img" aria-label={health.map((h) => `${h.name} ${h.value}`).join(', ')}>
-              {health.filter((h) => h.value > 0).map((h) => <span key={h.name} style={{ flexGrow: h.value, background: h.color }}><em>{h.value}</em></span>)}
+      {live && sum && (
+        <div className="grid-2 mt wide-left">
+          <section className="card" aria-label={`${live.name} performance`}>
+            <div className="card-head">
+              <div><span className="eyebrow">{live.status === 'Live' ? 'Live campaign' : 'Latest campaign'}</span><h3 style={{ fontSize: 22, marginTop: 4 }}>{live.name}</h3>
+                <p className="muted">{sum.creators} creators · {fmtINRShort(sum.spend)} of {fmtINRShort(live.budget)} budget</p></div>
+              <Link href={perfHref} className="btn solid">Open performance<ArrowRight size={14} /></Link>
             </div>
-          ) : <div className="chart-zero">No campaigns yet. Create one to see its state here.</div>}
-          <ul className="legend row">{health.map((h) => <li key={h.name}><i style={{ background: h.color }} />{h.name}<b>{h.value}</b></li>)}</ul>
-          <p className="insight">{sum.needsAction === 0 ? 'No active campaigns need attention right now.' : `${sum.needsAction} active campaign${sum.needsAction === 1 ? '' : 's'} need${sum.needsAction === 1 ? 's' : ''} attention this week.`}</p>
-        </section>
-
-        <section className="card" aria-label="Metrics">
-          <div className="card-head"><div><h3>Performance</h3><p className="muted">Sample observations and live completion</p></div></div>
-          <div className="metric-grid">
-            {metric.map((m) => (
-              <div key={m.k} className="metric">
-                <span className="demo-tag">Demo data</span>
-                <span className="metric-k">{m.k}</span><b>{m.v}</b>
-                <Spark data={DEMO_ENGAGEMENT as unknown as Record<string, number | string>[]} k={m.spark} color={m.color} />
-              </div>
-            ))}
-            <div className="metric">
-              <span className="metric-k">Campaign completion</span><b>{Math.round(completion)}%</b>
-              <Bar value={completion} tone="green" label="Campaign completion" />
-              <small className="muted">Task completion {Math.round(sum.taskCompletionRate)}%</small>
+            <div className="stats two">
+              <Stat label="Views delivered" value={`${fmtNum(sum.views)}`} sub={`of ${fmtNum(sum.expectedViews)} paid for`} tone={tones[deliveryTone(sum.deliveryPct)]} />
+              <Stat label="Cost per 1,000 views" value={sum.costPer1000 ? fmtINR(sum.costPer1000) : '-'} sub={`plan ${fmtINR(live.ratePer1000)}`} tone={sum.costPer1000 && sum.costPer1000 <= live.ratePer1000 ? 'green' : 'yellow'} />
+              <Stat label="Posts live" value={`${sum.live} of ${sum.creators}`} sub={`${sum.late + sum.missed} late or missed`} tone="blue" />
+              <Stat label="Sales via codes" value={sum.revenue !== null ? fmtINRShort(sum.revenue) : '-'} sub={sum.roas !== null ? `${sum.roas.toFixed(1)}x return on spend` : 'Connect Shopify'} tone="mint" />
             </div>
-            <div className="metric">
-              <span className="demo-tag">Demo data</span>
-              <span className="metric-k">Average turnaround</span><b>{DEMO_METRICS.averageTurnaround.toFixed(1)}<small> days</small></b>
-              <Bar value={Math.min(100, (DEMO_METRICS.averageTurnaround / 7) * 100)} tone="peach" label="Turnaround against a 7-day scale" />
-            </div>
-          </div>
-        </section>
-      </div>
+            <div style={{ marginTop: 16 }}><Meter value={(sum.spend / live.budget) * 100} tone="blue" label="Budget committed" /><small className="muted">Budget committed {fmtPct((sum.spend / live.budget) * 100)}</small></div>
+          </section>
+          <section className="card" aria-label="What stands out">
+            <div className="card-head"><div><h3>What stands out</h3><p className="muted">Worked out from the numbers on this campaign</p></div></div>
+            {insights.length ? (
+              <ul className="home-insights">{insights.map((i) => <li key={i.text}><i style={{ background: DOT[i.tone] }} />{i.text}</li>)}</ul>
+            ) : <Empty title="Nothing to report yet">Add post links to see how creators are doing.</Empty>}
+          </section>
+        </div>
+      )}
 
       <section className="mt" aria-label="Needs your attention">
-        <div className="sec-head"><h2>Needs your attention</h2><span className="muted">{attention.length} to resolve</span></div>
-        {attention.length ? (
-          <div className="attn-grid">
-            {attention.map((a, i) => (
-              <article key={a.campaign.id} className={`acard t-${a.tone}`} style={{ animationDelay: `${i * 50}ms` }} data-testid={`card-attention-${a.campaign.id}`}>
-                <span className="eyebrow">{a.campaign.title}</span>
-                <h3>{a.label}</h3>
-                <p>{a.desc}</p>
-                <div className="acard-foot">
-                  {a.due ? <Pill tone={a.tone}>{a.due}</Pill> : <span />}
-                  <Link href={a.href} className="btn solid">{a.cta}<ArrowRight size={14} /></Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : <Empty title="Nothing needs you right now">Every open campaign is on track.</Empty>}
+        <div className="sec-head"><h2>Needs your attention</h2></div>
+        <div className="attn-grid">
+          {behind.slice(0, 2).map((r, i) => (
+            <article key={r.collab.id} className="acard t-coral" style={{ animationDelay: `${i * 50}ms` }}>
+              <span className="eyebrow">{live?.name}</span>
+              <h3>{r.status === 'Missed' ? 'Missed deliverable' : 'Post is late'}</h3>
+              <p>{r.creator.name} has not posted the Reel{r.primary?.plannedDate ? ` that was due ${new Date(`${r.primary.plannedDate}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}. Fee {r.fee ? fmtINR(r.fee) : 'to be agreed'}.</p>
+              <div className="acard-foot"><Pill tone="coral">{r.status}</Pill><Link href={perfHref} className="btn solid">Follow up<ArrowRight size={14} /></Link></div>
+            </article>
+          ))}
+          {waiting.length > 0 && waitingProg && (
+            <article className="acard t-purple">
+              <span className="eyebrow">{waitingProg.name}</span>
+              <h3>{waiting.length} creator{waiting.length === 1 ? '' : 's'} waiting on you</h3>
+              <p>Applications and counter-offers are waiting for a reply. Creators move on if they wait too long.</p>
+              <div className="acard-foot"><Pill tone="purple">{waitingProg.slots} slots</Pill><Link href={`/programmes/${waitingProg.id}?tab=creators`} className="btn solid">Review<ArrowRight size={14} /></Link></div>
+            </article>
+          )}
+          {sum && sum.storiesAwaiting > 0 && (
+            <article className="acard t-yellow">
+              <span className="eyebrow">{live?.name}</span>
+              <h3>{sum.storiesAwaiting} stories need screenshots</h3>
+              <p>Story views are private to the creator and disappear after 24 hours. Ask for a screenshot to see the numbers.</p>
+              <div className="acard-foot"><Pill tone="yellow">Private data</Pill><Link href={perfHref} className="btn solid">Request<ArrowRight size={14} /></Link></div>
+            </article>
+          )}
+          {attention.map((a, i) => (
+            <article key={a.campaign.id} className={`acard t-${a.tone}`} style={{ animationDelay: `${i * 50}ms` }} data-testid={`card-attention-${a.campaign.id}`}>
+              <span className="eyebrow">{a.campaign.title}</span>
+              <h3>{a.label}</h3>
+              <p>{a.desc}</p>
+              <div className="acard-foot">
+                {a.due ? <Pill tone={a.tone}>{a.due}</Pill> : <span />}
+                <Link href={a.href} className="btn solid">{a.cta}<ArrowRight size={14} /></Link>
+              </div>
+            </article>
+          ))}
+        </div>
+        {!behind.length && !waiting.length && !attention.length && <Empty title="Nothing needs you right now">Every campaign is on track.</Empty>}
       </section>
 
-      <section className="mt" aria-label="Active campaigns">
-        <div className="sec-head"><h2>Active campaigns</h2><Link href="/campaigns" className="textlink">All campaigns<ArrowRight size={14} /></Link></div>
-        {live.length ? <div className="cgrid">{live.map(({ c }, i) => <CampaignCard key={c.id} c={c} i={i} />)}</div> : <Empty title="No open campaigns">Start one with New campaign.</Empty>}
-        {live.some(({ c }) => campaignOverdue(c)) && <p className="muted fine">Overdue campaigns are outlined in coral.</p>}
+      <section className="mt" aria-label="Active collaborations">
+        <div className="sec-head"><h2>Active collaborations</h2><Link href="/campaigns" className="textlink">All collaborations<ArrowRight size={14} /></Link></div>
+        {activeCollabs.length ? <div className="cgrid">{activeCollabs.map(({ c }, i) => <CampaignCard key={c.id} c={c} i={i} />)}</div> : <Empty title="No open collaborations">Invite a creator from the marketplace to start one.</Empty>}
+        {activeCollabs.some(({ c }) => campaignOverdue(c)) && <p className="muted fine">Overdue collaborations are outlined in coral.</p>}
       </section>
 
       <section className="card mt" aria-label="Recent activity">
@@ -120,3 +146,4 @@ export default function Home() {
     </>
   );
 }
+

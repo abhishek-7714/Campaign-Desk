@@ -49,7 +49,7 @@ export default function CloseoutTab({ campaign }: { campaign: Campaign }) {
             <TextField wide label="Publication URL" type="url" placeholder="https://" value={url} error={error} onChange={(e) => setUrl(e.target.value)} />
             <SelectField label="Payment status" value={payment} options={PAYMENT_STATUSES} onChange={(e) => setPayment(e.target.value as PaymentStatus)} />
           </div>
-          <p className="disclaimer">Status tracking only. Campaign Desk records what your team enters; it does not create invoices, process payments or verify publication or payment with any external service. Changing payment status does not change the campaign status.</p>
+          <p className="disclaimer">Status tracking only. nano.club records what your team enters; it does not create invoices, process payments or verify publication or payment with any external service. Changing payment status does not change the campaign status.</p>
         </div>
         <div className="modal-foot">
           <span className="count-label" style={{ marginRight: 'auto' }}>{dirty ? 'Unsaved changes' : 'All changes saved'}</span>

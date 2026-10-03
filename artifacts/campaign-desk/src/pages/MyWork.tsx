@@ -25,7 +25,7 @@ export default function MyWork() {
       <PageTitle title="My work" sub={`Open tasks assigned to ${CURRENT_USER}.`} actions={<button className="btn primary lg" onClick={() => openDialog({ type: 'task' })}><Plus size={16} />New task</button>} />
       <div className="filters"><div className="selects">
         <select aria-label="Filter by task status" value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">All statuses</option>{TASK_STATUSES.map((s) => <option key={s}>{s}</option>)}</select>
-        <select aria-label="Filter by campaign" value={campaign} onChange={(e) => setCampaign(e.target.value)}><option value="all">All campaigns</option>{campaigns.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}</select>
+        <select aria-label="Filter by collaboration" value={campaign} onChange={(e) => setCampaign(e.target.value)}><option value="all">All collaborations</option>{campaigns.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}</select>
       </div></div>
       <div className="work-groups">
         {groups.map((g) => (

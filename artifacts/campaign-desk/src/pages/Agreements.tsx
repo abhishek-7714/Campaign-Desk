@@ -16,7 +16,7 @@ export default function Agreements() {
   const open = campaigns.filter((c) => gapFields(c.agreement).length).length;
   return (
     <>
-      <PageTitle title="Agreements" sub={`${open} of ${campaigns.length} campaigns have unresolved terms.`} />
+      <PageTitle title="Agreements" sub={`${open} of ${campaigns.length} collaborations have unresolved terms.`} />
       <div className="filters"><div className="chips">
         {(['all', 'unresolved', 'complete'] as const).map((f) => <button key={f} className={`chip ${filter === f ? 'on' : ''}`} onClick={() => setFilter(f)}>{f[0].toUpperCase() + f.slice(1)}</button>)}
       </div></div>
