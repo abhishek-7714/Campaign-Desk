@@ -1,0 +1,277 @@
+# Build Campaign Desk — a Jira-inspired creator campaign operations tool
+
+Build a functional, polished MVP web application called **Campaign Desk**. It is an issue-tracking and workflow-management tool inspired by Jira’s information architecture and interaction patterns, customised for managing influencer and creator marketing campaigns.
+
+This is a product prototype for validating three hypotheses:
+1. Explicit campaign terms help prevent scope ambiguity.
+2. A shared workflow with clear owners and deadlines reduces coordination effort.
+3. One campaign workspace makes publication and payment status easier to manage.
+
+The application must support realistic user tasks that test these hypotheses. Do not build a generic marketing dashboard.
+
+## 1. Design direction: Jira, not generic SaaS
+
+Use Jira as the primary design reference for information architecture, density, navigation, tables, issue detail views, status transitions and workflow management. Do not copy Jira branding or logos.
+
+The visual language should feel like a mature internal productivity tool:
+- Compact, information-dense layouts with a clear hierarchy.
+- White and light-neutral surfaces, subtle borders and restrained blue accents.
+- A persistent left sidebar, a slim top navigation bar, breadcrumbs and page-level actions.
+- Compact tables, inline status lozenges, small avatars, issue keys, timestamps and owner labels.
+- Clear hover, focus, selected, disabled and completed states.
+- Small, consistent spacing; avoid oversized padding and unnecessarily large headings.
+- Use a professional sans-serif font such as Inter.
+- Use Lucide icons consistently.
+- Use colour to communicate state, priority and urgency, not as decoration.
+
+**Do not use:** gradient backgrounds, glassmorphism, giant metric cards, oversized hero sections, decorative illustrations, excessive rounded cards, random charts, AI-themed visual effects, emoji icons, or a template-like dashboard full of meaningless KPIs.
+
+The product should look credible as a tool a brand marketing team might use every working day.
+
+## 2. Application structure
+
+Build a persistent app shell with:
+
+### Left sidebar
+- Workspace switcher: `Monsoon & Co.`
+- Campaigns
+- My Work
+- Board
+- Agreements
+- Reports (can be a simple placeholder; do not build analytics that are unrelated to the hypotheses)
+- A small workspace settings area
+
+Highlight the active navigation item. Include a compact user avatar at the bottom.
+
+### Top bar
+- Breadcrumbs reflecting the current location.
+- Search field that searches campaigns and tasks.
+- A `Create` button.
+- Notifications icon may be visual-only; do not imply real notifications are sent.
+- Current user: `Abhishek Jain`.
+
+The default screen should be the **campaign issue list**, not a marketing homepage.
+
+## 3. Primary screen: campaign list
+
+Create a dense, useful table with columns:
+
+- Issue key
+- Campaign
+- Creator
+- Brand owner
+- Status
+- Priority
+- Due date
+- Next action
+
+Seed it with 5–6 realistic fictional campaigns, including:
+- `CMP-101 — Monsoon Edit`
+- `CMP-102 — Festive Skin Launch`
+- `CMP-103 — Everyday Essentials`
+- `CMP-104 — Campus Style Stories`
+- `CMP-105 — Weekend Café Reel`
+
+Use a realistic mix of statuses: Planning, Terms to Confirm, Brief Ready, Draft Submitted, In Review, Changes Requested, Approved, Published, Payment Pending, and Complete.
+
+Use compact status lozenges and subtle urgency indicators for overdue items. Include useful filters for status, owner and due date, plus a search field. Sorting should work on at least campaign name, status and due date.
+
+Selecting a row opens that campaign’s detail page or a Jira-like issue drawer. The campaign name and issue key should behave as navigable links.
+
+Avoid decorative KPI cards. If summary counts are useful, display them as a compact line above the table, such as `12 campaigns · 3 awaiting review · 2 overdue`.
+
+## 4. Campaign detail: the central product experience
+
+Make `CMP-101 — Monsoon Edit` the fully populated example.
+
+Use a Jira-like issue detail layout with:
+- Breadcrumb: Campaigns / CMP-101
+- Issue key and editable campaign title
+- Current status with a working transition control
+- Priority
+- Brand owner and creator
+- Due date
+- A main content column and a narrower right-hand properties panel
+
+The page should contain these tabs or sections:
+
+### A. Overview
+Show the campaign brief, objective, required deliverables, target audience, publishing date and current blocker.
+
+### B. Workflow
+Display a compact horizontal or vertical workflow:
+`Terms → Brief → Draft → Review → Revisions → Approved → Published → Payment`
+
+Show the current stage, completed stages, pending stages and any blocked transition. Do not make every step a separate decorative card.
+
+### C. Agreement
+A structured, editable agreement with:
+- Deliverables
+- Fee
+- Organic usage rights
+- Paid usage rights, if applicable
+- Exclusivity
+- Number of included revision rounds
+- Content deadline
+- Publication date
+- Payment terms and invoice trigger
+- Required talking points
+
+Highlight fields that are missing or marked `To be confirmed`. The interface must make incomplete terms obvious before a campaign moves to the next stage.
+
+### D. Tasks
+A Jira-style issue/task table with:
+- Task key
+- Task title
+- Assignee
+- Status
+- Due date
+- Priority
+
+Seed realistic tasks such as:
+- Confirm usage rights
+- Approve campaign brief
+- Submit first-cut Reel
+- Consolidate brand feedback
+- Review revised draft
+- Confirm invoice details
+- Record publication URL
+- Confirm payment received
+
+Users must be able to add tasks, change assignees, update status and edit due dates.
+
+### E. Activity
+A chronological activity log showing meaningful changes: terms updated, brief confirmed, draft submitted, review requested, status changed and invoice recorded. Each entry should include a timestamp and actor.
+
+Do not fabricate live activity. Clearly treat seeded history as example data.
+
+## 5. Board view
+
+Create a functional Kanban board with these columns:
+- To Do
+- In Progress
+- In Review
+- Blocked
+- Done
+
+Cards represent campaign tasks, not abstract marketing metrics. Each card should show its task key, title, campaign, assignee, due date and priority.
+
+Allow moving tasks between columns using drag-and-drop if reliable; otherwise provide an accessible status menu. Updating a task here must also update it in the campaign detail view.
+
+Make blockers easy to identify without making the whole interface red.
+
+## 6. My Work
+
+Create a compact personal work queue with:
+- Assigned to me
+- Due today
+- Overdue
+- Awaiting my review
+
+Rows should link to the relevant campaign or task. Filtering and status changes must work.
+
+## 7. Publication and payment close-out
+
+In the campaign detail view, include a close-out checklist:
+- Content approved
+- Publication confirmed
+- Publication URL recorded
+- Invoice submitted
+- Invoice accepted
+- Payment status recorded
+
+Payment statuses: Not Invoiced, Invoice Submitted, Invoice Accepted, Processing, Paid.
+
+This is status tracking only. Do not integrate a payment gateway, create actual invoices or claim that a payment has been verified externally.
+
+## 8. Core interactions — all must work
+
+Implement these behaviours:
+1. Create a campaign with a title, creator, owner and due date.
+2. Open a campaign from the issue list.
+3. Edit agreement fields and save them.
+4. Identify missing agreement terms visually.
+5. Add, edit and complete tasks.
+6. Change task assignee, due date, priority and status.
+7. Filter and search campaigns and tasks.
+8. Move tasks on the board and see the changes reflected everywhere.
+9. Update publication, invoice and payment statuses.
+10. View the activity history of a campaign.
+11. Navigate between all primary sections without dead links.
+
+Use confirmation or validation messages when appropriate. Avoid buttons that look functional but do nothing.
+
+## 9. Seeded test scenario
+
+The prototype must open with realistic, interconnected demo data. No sign-up, login, onboarding wizard or external integrations are required.
+
+Use the following main scenario:
+
+**CMP-101 — Monsoon Edit**
+- Brand: Monsoon & Co.
+- Creator: Aanya Deshmukh
+- Deliverables: 1 Reel + 3 Stories
+- Fee: ₹27,000
+- Usage rights: Organic only
+- Revisions: 1 round included
+- Payment: Net 30 from invoice
+- Target publication date: 12 October 2026
+- Current status: In Review
+- Current blocker: Brand review of the first-cut Reel
+- Next action: Brand owner must review the first cut and consolidate feedback
+
+Include at least two additional tasks with different owners and deadlines, including one incomplete invoice or payment item. The other campaigns can have different combinations of missing terms, overdue tasks, requested revisions and completed publication.
+
+Use fictional data only. Keep the sample consistent across list, board, detail, task and activity views.
+
+## 10. Architecture and implementation
+
+Use React and TypeScript with a clean, maintainable component structure. Use Tailwind CSS if it is already available in the Replit environment; otherwise use a consistent CSS system rather than introducing unnecessary dependencies.
+
+Recommended components:
+- `AppShell`
+- `Sidebar`
+- `TopBar`
+- `CampaignList`
+- `CampaignDetail`
+- `WorkflowProgress`
+- `AgreementPanel`
+- `TaskTable`
+- `TaskBoard`
+- `MyWork`
+- `ActivityLog`
+- `CloseoutChecklist`
+
+For this first prototype:
+- Use local seeded data and browser local storage for persistence.
+- No authentication, database, API keys or third-party services.
+- Use TypeScript types for campaigns, agreements, tasks, status transitions and activity events.
+- Keep campaign and task state centralised so updates are reflected consistently across views.
+- Use reusable components rather than a single enormous file.
+- Ensure the app works at desktop widths and remains usable on mobile.
+- Provide sensible empty states, form validation and accessible keyboard interactions.
+
+## 11. Acceptance criteria
+
+Before considering the prototype complete, verify that:
+- The app opens directly into the campaign list.
+- The user can navigate from a campaign row to its detail view.
+- Changes to terms and tasks persist after refreshing.
+- Missing agreement fields are visible and can be corrected.
+- Task updates stay consistent across the list, board and campaign detail.
+- Search and filters return the expected records.
+- The campaign workflow clearly shows blockers and next actions.
+- Publication and payment status can be updated independently.
+- No buttons or navigation items falsely imply functionality.
+- There are no major console errors or broken layouts.
+
+## 12. Product discipline
+
+This is an MVP for testing three specific hypotheses:
+1. Explicit terms reduce ambiguity.
+2. Clear task ownership and a shared workflow reduce coordination effort.
+3. A single campaign view makes end-to-end status easier to manage.
+
+Prioritise those behaviours over feature breadth. Do not add AI chat, creator recommendations, influencer discovery, campaign performance analytics, messaging integrations or payment processing.
+
+Build the working application, not a static mockup. Once implemented, give a concise summary of what works, what remains incomplete, and any acceptance criteria that have not been met.
