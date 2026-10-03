@@ -8,8 +8,8 @@
   --brand:#ff6a2b; --brand-hover:#ff7f47; --brand-ink:#b23c00; --brand-s:#ffe9de;
   --lime:#c6f432; --lime-s:#f0fbc4;
   --indigo:#b23c00; --indigo-s:#ffe9de;
-  --font-display:'Bricolage Grotesque','Geist',system-ui,sans-serif;
-  font-family:'Geist',system-ui,sans-serif;
+  --font-display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;
+  font-family:'Figtree',system-ui,sans-serif;
   font-feature-settings:'ss01','cv11';
 }
 
@@ -17,7 +17,7 @@
 .ptitle h1,.app-shell .detail-title,.tile b,.wordmark,.drawer-head h2,.app-shell .modal-head h2 { font-family:var(--font-display);font-weight:700;letter-spacing:-.03em }
 .ptitle h1 { font-size:clamp(28px,3.4vw,38px);line-height:1.08 }
 .stat b,.dt td.num,.dchip,.tile b { font-variant-numeric:tabular-nums }
-code,.mono { font-family:'Geist Mono',ui-monospace,monospace }
+code,.mono { font-family:'DM Mono',ui-monospace,monospace }
 
 /* ---- logo lockup ---- */
 .logo { display:inline-flex;align-items:center;gap:10px }
@@ -37,14 +37,7 @@ code,.mono { font-family:'Geist Mono',ui-monospace,monospace }
 .app-shell .side-footer .avatar { background:rgba(255,255,255,.14);color:#fff }
 .app-shell .settings-link { color:#9fb3bb }
 .app-shell .settings-link:hover,.app-shell .settings-link.active { background:rgba(255,255,255,.1);color:#fff }
-.ws-switch-wrap { background:rgba(255,255,255,.08);color:#9fb3bb }
-.app-shell .ws-switch { color:#fff }
-.app-shell .ws-switch option { color:#10222b }
 .ws-mark { background:var(--lime);color:var(--ink) }
-.role-switch { background:rgba(255,255,255,.08);border-radius:999px }
-.role-switch button { color:#b4c5cc;border-radius:999px }
-.role-switch button.on { background:var(--brand);color:var(--ink);box-shadow:none;font-weight:700 }
-.role-hint { color:#8fa6b0 }
 
 /* ---- prototype ribbon: lime tape ---- */
 .proto-ribbon { background:var(--lime);color:var(--ink);font-weight:500 }
@@ -107,3 +100,164 @@ code,.mono { font-family:'Geist Mono',ui-monospace,monospace }
 /* ---- layout safety: grids of cards must never grow past their column ---- */
 .pf,.stack,.cr-page,.pg-page { grid-template-columns:minmax(0,1fr) }
 .pf > *,.stack > * { min-width:0 }
+
+/* =====================================================================
+   Type scale, sidebar, menus and touch sizes (polish pass)
+   Base text is 15px on desktop and 16px on phones, so inputs never trigger
+   zoom on iOS. Headings and big numbers scale with the screen.
+   ===================================================================== */
+.app-shell {
+  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-base:.9375rem; --fs-md:1.0625rem;
+  --fs-title:clamp(1.75rem,1.15rem + 2vw,2.5rem);
+  --fs-section:clamp(1.25rem,1.05rem + .8vw,1.625rem);
+  --fs-num:clamp(2.5rem,1.7rem + 3vw,4rem);
+  --tap:44px;
+  font-size:var(--fs-base);line-height:1.5;
+}
+.app-shell .content { padding:8px clamp(16px,3.4vw,44px) 72px }
+.app-shell .topbar { padding-inline:clamp(16px,3.4vw,44px) }
+.ptitle { margin:clamp(14px,2.4vw,26px) 0 clamp(18px,2.8vw,30px) }
+.ptitle h1 { font-size:var(--fs-title);line-height:1.08 }
+.ptitle p { font-size:clamp(.9375rem,.88rem + .25vw,1.0625rem);margin-top:8px;max-width:62ch }
+.sec-head h2,.card-head h3 { font-size:var(--fs-section) }
+.card-head h3 { font-size:1.0625rem }
+.tile b { font-size:var(--fs-num) }
+.static b { font-size:clamp(2rem,1.6rem + 1.4vw,2.75rem) }
+.stat b { font-size:clamp(1.5rem,1.2rem + 1vw,2rem) }
+.muted,.fine,small { font-size:inherit }
+.eyebrow { font-size:var(--fs-xs) }
+
+/* ---- sidebar ---- */
+.app-shell .sidebar { width:252px;padding:20px 14px 16px;gap:0 }
+.app-shell .brand { padding:2px 8px 6px }
+.brand-tag { margin:0 8px 18px;font-size:var(--fs-sm);line-height:1.35 }
+.ws-card { display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:18px;border-radius:16px;background:rgba(255,255,255,.07);min-height:56px }
+.ws-card .ws-mark,.ws-card .cav { flex:none }
+.ws-mark { width:32px;height:32px;border-radius:50%;font-weight:800;font-size:var(--fs-sm) }
+.ws-text { display:grid;min-width:0;line-height:1.25 }
+.ws-text b { color:#fff;font-size:var(--fs-base);font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap }
+.ws-text small { color:#8fa6b0;font-size:var(--fs-xs) }
+.app-shell .nav-list { gap:4px }
+.app-shell .nav-link { min-height:44px;padding:0 14px;font-size:var(--fs-base);gap:12px }
+.app-shell .nav-link svg { width:19px;height:19px;flex:none }
+.app-shell .side-footer { padding:14px 0 0;margin-top:auto;display:block }
+
+/* ---- account menu ---- */
+.acct { position:relative }
+.acct-btn { display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:16px;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:left;min-height:52px }
+.acct-btn:hover,.acct-btn[aria-expanded="true"] { background:rgba(255,255,255,.1) }
+.acct-t { display:grid;min-width:0;flex:1;line-height:1.25 }
+.acct-t b { font-size:var(--fs-base);font-weight:650;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap }
+.acct-t small { font-size:var(--fs-xs);color:#8fa6b0 }
+.acct-btn > svg { color:#8fa6b0;flex:none }
+.acct-side .avatar { width:34px;height:34px }
+.acct-menu { position:absolute;z-index:40;min-width:300px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:8px;box-shadow:0 24px 50px -20px rgba(16,34,43,.45);left:0;bottom:calc(100% + 8px) }
+.acct:not(.up) .acct-menu { bottom:auto;top:calc(100% + 8px);left:auto;right:0 }
+.acct-head { display:grid;gap:2px;padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:6px }
+.acct-head b { font-size:var(--fs-base) }
+.acct-head span { color:var(--muted);font-size:var(--fs-sm) }
+.acct-menu button { white-space:nowrap;display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:12px;background:none;font:inherit;font-size:var(--fs-base);color:var(--ink);cursor:pointer;text-align:left }
+.acct-menu button:hover,.acct-menu button:focus-visible { background:#eaf0f2;outline:none }
+.acct-menu button svg { color:#5b6d77;flex:none }
+.acct-menu button em { margin-left:auto;font-style:normal;font-size:var(--fs-xs);font-weight:700;background:var(--lime);color:var(--ink);border-radius:999px;padding:2px 8px }
+.acct-sep { height:1px;background:var(--line);margin:6px 0 }
+.acct-top { display:none }
+.acct-top .acct-btn { width:auto;padding:4px;min-height:44px }
+.acct-top .acct-btn { color:var(--ink) }
+.acct-top .acct-t,.acct-top .acct-btn > svg { display:none }
+
+/* ---- top bar, create menu and search, same shape language ---- */
+.app-shell .topbar { height:68px;gap:16px }
+.app-shell .top-right { gap:10px;margin-left:auto }
+.app-shell .top-search { flex:1;max-width:460px }
+.app-shell .top-search input { height:44px;font-size:var(--fs-base) }
+.app-shell .button.primary,.app-shell .top-right .button { min-height:44px }
+.app-shell .icon-btn { width:44px;height:44px;padding:0;justify-content:center;border-radius:999px }
+.app-shell .menu { border-radius:18px;padding:8px;min-width:200px;top:calc(100% + 8px);box-shadow:0 24px 50px -20px rgba(16,34,43,.45) }
+.app-shell .menu button { min-height:44px;padding:0 12px;font-size:var(--fs-base);border-radius:12px;color:var(--ink) }
+.app-shell .menu button:hover,.app-shell .menu button:focus-visible { background:#eaf0f2 }
+.app-shell .search-results { border-radius:18px;top:calc(100% + 8px);padding:8px;box-shadow:0 24px 50px -20px rgba(16,34,43,.45) }
+.app-shell .sr-item { min-height:40px;padding:0 10px;border-radius:10px;font-size:var(--fs-base) }
+.app-shell .sr-head { font-size:var(--fs-xs) }
+.proto-ribbon { font-size:var(--fs-sm);padding:8px 16px }
+.pr-long { display:inline }
+
+/* ---- no thick side stripes: tone is carried by chips and tinted surfaces ---- */
+.tcard,.kcard { border-left:1px solid var(--line) }
+.tcard.is-late,.kcard.is-late { background:#fff4f2;border-color:#f3c3bc }
+.acard { border-top:1px solid var(--line);background:color-mix(in srgb,var(--s) 38%,#fff) }
+.health { border-top:1px solid var(--line) }
+.rank { border-left:1px solid var(--line) }
+.kcard.u-urgent,.kcard.u-high,.kcard.u-medium { border-left-color:var(--line) }
+
+/* ---- touch sizes and readable text on phones ---- */
+@media (max-width:900px) {
+  .app-shell .sidebar { width:220px }
+}
+@media (max-width:700px) {
+  .app-shell { --fs-base:1rem;--fs-sm:.875rem;--fs-xs:.8125rem }
+  .app-shell .sidebar { width:100%;padding:10px 12px 8px }
+  .app-shell .brand { padding:0 4px 2px }
+  .ws-card,.app-shell .side-footer { display:none }
+  .app-shell .nav-list { padding:6px 0 4px;gap:6px }
+  .app-shell .nav-link { min-height:44px;font-size:var(--fs-base);padding:0 16px }
+  .acct-top { display:block }
+  .app-shell .topbar { height:auto;min-height:64px;flex-wrap:wrap;padding-block:10px;gap:10px }
+  .app-shell .top-search { order:3;flex:1 1 100%;max-width:none }
+  .crumbs { display:none }
+  .app-shell .top-right { margin-left:auto }
+  .pr-long { display:none }
+  .proto-ribbon { padding:6px 12px;gap:10px;justify-content:space-between;text-align:left }
+  input,select,textarea,.form-row input,.form-row select,.form-row textarea,.search-field input,.top-search input { font-size:16px }
+  .btn,.app-shell .button { min-height:44px }
+  .btn.small { min-height:40px }
+  .chip,.app-shell .tab { min-height:40px }
+  .dt { font-size:var(--fs-sm) }
+  .app-shell .content { padding-top:6px }
+}
+
+/* ---- phone shell: one compact top row, clean scrolling nav ---- */
+.pr-short { display:none }
+@media (max-width:700px) {
+  .pr-short { display:inline }
+  .app-shell .nav-list { overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(90deg,#000 88%,transparent) }
+  .app-shell .nav-list::-webkit-scrollbar { display:none }
+  .proto-ribbon { flex-wrap:nowrap;white-space:nowrap;font-size:var(--fs-sm) }
+  .proto-ribbon > span { overflow:hidden;text-overflow:ellipsis }
+  .app-shell .topbar { flex-wrap:nowrap;min-height:68px;padding-block:12px;gap:8px }
+  .app-shell .top-search { order:0;flex:1 1 auto;min-width:0;max-width:none }
+  .app-shell .top-right { margin-left:0;gap:8px;flex:none }
+  .app-shell .top-right .icon-btn { display:none }
+  .app-shell .top-right .button.primary { width:44px;padding:0;justify-content:center }
+  .app-shell .top-right .button.primary .lbl { display:none }
+  .app-shell .top-right .button.primary svg { margin:0 }
+}
+
+.card-head { flex-wrap:wrap;gap:12px }
+.acct-top .avatar,.acct-top .cav { width:40px !important;height:40px !important;font-size:.8125rem !important }
+
+/* ---- comfortable tap targets on touch screens ---- */
+@media (max-width:700px) {
+  select,.selects select,.field-inline select { min-height:44px }
+  .heart-btn { width:44px;height:44px }
+  .pill-check { min-height:40px }
+  .link-btn { min-height:36px;display:inline-flex;align-items:center;padding-inline:4px }
+  .kmove { min-height:40px }
+  .ktitle { min-height:32px;display:inline-flex;align-items:center }
+  label:has(> input[type=checkbox]) { min-height:40px;display:inline-flex;align-items:center;gap:8px }
+  input[type=checkbox],input[type=radio] { width:20px;height:20px }
+}
+
+@media (max-width:1000px) {
+  .pr-long { display:none }
+  .pr-short { display:inline }
+}
+.mp-grid { grid-template-columns:repeat(auto-fill,minmax(280px,1fr)) }
+
+@media (max-width:700px) {
+  .app-shell .sidebar { position:static;height:auto }
+  .app-shell .topbar { top:0 }
+}
+
+.app-shell .tabs,.chips { overflow-x:auto;scrollbar-width:none;max-width:100% }
+.app-shell .tabs::-webkit-scrollbar,.chips::-webkit-scrollbar { display:none }

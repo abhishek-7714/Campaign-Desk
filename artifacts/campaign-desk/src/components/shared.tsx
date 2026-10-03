@@ -45,7 +45,7 @@ const SRC: Record<SourceKind, { label: string; cls: string; title: string }> = {
   estimated: { label: 'Estimated', cls: 'est', title: 'Estimated from public numbers. Not a measured figure.' },
   'creator-screenshot': { label: 'Creator-confirmed', cls: 'confirmed', title: 'Read from a screenshot the creator sent, then confirmed.' },
   'creator-connected': { label: 'Creator-connected', cls: 'confirmed', title: 'Pulled from the creator’s connected Instagram account.' },
-  'brand-connected': { label: 'Brand-connected', cls: 'brand', title: 'Pulled from your connected Instagram account. Works for Collab posts.' },
+  'brand-connected': { label: 'Brand-connected', cls: 'conn', title: 'Pulled from your connected Instagram account. Works for Collab posts.' },
   locked: { label: 'Private', cls: 'locked', title: 'Reach, saves and shares are private to the creator. Ask them to connect or send a screenshot.' },
   sample: { label: 'Sample', cls: 'est', title: 'Sample data for this prototype.' },
 };

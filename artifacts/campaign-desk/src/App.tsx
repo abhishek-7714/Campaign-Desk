@@ -24,6 +24,7 @@ import Opportunities from '@/pages/creator/Opportunities';
 import OpportunityDetail from '@/pages/creator/OpportunityDetail';
 import CreatorWork from '@/pages/creator/MyWork';
 import CreatorProfileEdit from '@/pages/creator/Profile';
+import Landing from '@/pages/Landing';
 // Loaded last so the theme wins over per-screen stylesheets.
 import '@/styles/nano-theme.css';
 
@@ -34,7 +35,7 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 
 function Router() {
   const [loc] = useLocation();
-  const { role } = useStore();
+  const { role, signedIn } = useStore();
 
   // Read-only report page: no sidebar, no editing.
   if (loc.startsWith('/share/')) {
@@ -49,6 +50,9 @@ function Router() {
       </div>
     );
   }
+
+  // Not logged in: the landing page with the two demo logins.
+  if (!signedIn) return <Landing />;
 
   // Each role only sees its own screens.
   if (role === 'creator' && !loc.startsWith('/creator')) return <Redirect to="/creator" />;

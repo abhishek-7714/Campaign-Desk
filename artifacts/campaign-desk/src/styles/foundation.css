@@ -10,10 +10,10 @@
 .verified { color:#3b6fe0;flex:none }
 
 /* ---- source badges (where a number came from) ---- */
-.src { display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:.03em;border-radius:6px;padding:2px 6px;white-space:nowrap;cursor:help }
+.src { display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;letter-spacing:.03em;border-radius:6px;padding:2px 6px;white-space:nowrap;cursor:help }
 .src.public { background:#e3ebfd;color:#2a52b3 }
 .src.confirmed { background:#dbf2e4;color:#1f704a }
-.src.brand { background:#d9f1f4;color:#0b5f6d }
+.src.conn { background:#d9f1f4;color:#0b5f6d }
 .src.est { background:#fdf0c4;color:#8a6205 }
 .src.locked { background:#e8eef0;color:#566872 }
 .src-legend { display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:12px;color:var(--muted);padding:10px 14px;background:#eff3f5;border-radius:12px }
@@ -33,7 +33,7 @@
 /* ---- data table ---- */
 .dt-wrap { overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--surface);max-height:var(--dt-max,none) }
 .dt { width:100%;border-collapse:separate;border-spacing:0;font-size:13px }
-.dt th { position:sticky;top:0;z-index:2;background:#eff3f5;text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;user-select:none }
+.dt th { position:sticky;top:0;z-index:2;background:#eff3f5;text-align:left;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;user-select:none }
 .dt th button { all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px }
 .dt th button:hover { color:var(--ink) }
 .dt th.num,.dt td.num { text-align:right;font-variant-numeric:tabular-nums }
@@ -65,7 +65,7 @@
 
 /* ---- drawer ---- */
 .drawer-backdrop { position:fixed;inset:0;background:rgba(16,34,43,.38);z-index:60;display:flex;justify-content:flex-end;animation:fade .18s }
-.drawer { background:var(--surface,#ffffff);height:100%;display:flex;flex-direction:column;box-shadow:-24px 0 60px -30px rgba(16,34,43,.5);animation:slidein .22s cubic-bezier(.2,.7,.2,1);outline:none;font-family:'Geist',sans-serif;color:var(--ink,#10222b) }
+.drawer { background:var(--surface,#ffffff);height:100%;display:flex;flex-direction:column;box-shadow:-24px 0 60px -30px rgba(16,34,43,.5);animation:slidein .22s cubic-bezier(.2,.7,.2,1);outline:none;font-family:'Figtree',sans-serif;color:var(--ink,#10222b) }
 .drawer-head { display:flex;justify-content:space-between;gap:14px;padding:22px 24px 16px;border-bottom:1px solid var(--line,#dfe6e9) }
 .drawer-head h2 { margin:0;font-size:20px;letter-spacing:-.02em }
 .drawer-head p { margin:4px 0 0;color:var(--muted,#5b6d77);font-size:13px }
@@ -98,10 +98,6 @@
 .heart-btn.on { color:#e0594a }
 
 /* ---- role switch, prototype ribbon ---- */
-.role-switch { display:grid;grid-template-columns:1fr 1fr;background:#e8eef0;border-radius:12px;padding:3px;margin:0 0 16px }
-.role-switch button { border:0;background:transparent;border-radius:9px;padding:7px 0;font-size:13px;font-weight:600;color:#44585f;cursor:pointer;font-family:inherit }
-.role-switch button.on { background:var(--surface);color:var(--indigo);box-shadow:0 2px 6px rgba(16,34,43,.12) }
-.role-hint { font-size:11px;color:var(--muted);margin:-8px 4px 14px }
 .proto-ribbon { background:#10222b;color:#ffe9de;font-size:12px;display:flex;gap:14px;align-items:center;justify-content:center;padding:7px 16px;flex-wrap:wrap;text-align:center }
 .proto-ribbon b { color:#fff }
 .proto-ribbon button,.proto-ribbon a { all:unset;color:#fdf0c4;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px }
@@ -110,9 +106,7 @@
   .form-grid-2 { grid-template-columns:minmax(0,1fr) }
   .search-field input { min-width:0;width:100% }
   .search-field { width:100% }
-  .role-switch { margin-bottom:8px }
-  .role-hint { display:none }
-}
+    }
 
 /* ---- connect dialogs ---- */
 .connect { display:grid;gap:14px }

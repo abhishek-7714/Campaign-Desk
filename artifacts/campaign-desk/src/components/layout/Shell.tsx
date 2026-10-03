@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  Activity, AlertTriangle, Bell, BriefcaseBusiness, ChevronRight, ChevronsUpDown, FileCheck2, Home, Inbox, LayoutGrid, ListTodo, Megaphone, Plus, Search, Settings, Store, UserRound,
+  Activity, AlertTriangle, ArrowLeftRight, Bell, BriefcaseBusiness, ChevronDown, ChevronRight, FileCheck2, Home, Inbox, LayoutGrid, ListTodo, LogOut, Megaphone, Plus, Search, Settings, Store, UserRound,
 } from 'lucide-react';
 import { useStore } from '@/state/store';
 import { CURRENT_USER } from '@/domain/helpers';
@@ -106,7 +106,7 @@ function CreateMenu() {
   }, [open]);
   return (
     <div className="menu-wrap" ref={ref}>
-      <button className="button primary" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-create"><Plus />New</button>
+      <button className="button primary" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="button-create"><Plus /><span className="lbl">New</span></button>
       {open && (
         <div className="menu" role="menu">
           <button role="menuitem" onClick={() => { setOpen(false); navigate('/programmes?new=1'); }} data-testid="menu-create-programme">Campaign</button>
@@ -122,42 +122,67 @@ function PrototypeRibbon() {
   const { resetSample } = useStore();
   return (
     <div className="proto-ribbon" role="note">
-      <span><b>Prototype.</b> All numbers are sample data. Nothing is collected from Instagram, Shopify or any creator.</span>
-      <button onClick={() => { if (window.confirm('Reset the workspace to the original sample data? Your changes will be lost.')) resetSample(); }}>Reset sample data</button>
+      <span><b>Prototype.</b> All numbers are sample data.<span className="pr-long"> Nothing is collected from Instagram, Shopify or any creator.</span></span>
+      <button onClick={() => { if (window.confirm('Reset the workspace to the original sample data? Your changes will be lost.')) resetSample(); }}><span className="pr-long">Reset sample data</span><span className="pr-short">Reset</span></button>
       {FEEDBACK_URL && <a href={FEEDBACK_URL} target="_blank" rel="noreferrer">Give feedback</a>}
     </div>
   );
 }
 
+/** Who you are logged in as. Also holds the demo-only switch between the Brand and Creator views. */
+function AccountMenu({ up = false, className = '' }: { up?: boolean; className?: string }) {
+  const { role, setRole, signOut, workspaceName, actingCreator } = useStore();
+  const [, navigate] = useLocation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', h);
+    document.addEventListener('keydown', k);
+    return () => { document.removeEventListener('mousedown', h); document.removeEventListener('keydown', k); };
+  }, [open]);
+  const name = role === 'creator' ? actingCreator.name : CURRENT_USER;
+  const line = role === 'creator' ? `Creator · @${actingCreator.handle}` : `Brand · ${workspaceName}`;
+  const other: Role = role === 'creator' ? 'brand' : 'creator';
+  const swap = () => { setOpen(false); setRole(other); navigate(other === 'creator' ? '/creator' : '/'); };
+  return (
+    <div className={`acct ${up ? 'up' : ''} ${className}`} ref={ref}>
+      <button className="acct-btn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="account-menu">
+        {role === 'creator' ? <CreatorAvatar creator={actingCreator} size={34} /> : <Avatar name={name} />}
+        <span className="acct-t"><b>{name}</b><small>{role === 'creator' ? 'Creator' : 'Brand'}</small></span>
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="acct-menu" role="menu">
+          <div className="acct-head"><b>{name}</b><span>{line}</span></div>
+          <button role="menuitem" onClick={swap} data-testid={`switch-to-${other}`}><ArrowLeftRight size={16} />Switch to {other} view<em>Demo only</em></button>
+          {role === 'brand' && <button role="menuitem" onClick={() => { setOpen(false); navigate('/settings'); }}><Settings size={16} />Settings</button>}
+          <div className="acct-sep" />
+          <button role="menuitem" onClick={() => { setOpen(false); signOut(); navigate('/'); }} data-testid="log-out"><LogOut size={16} />Log out</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Shell({ children }: { children: ReactNode }) {
-  const [loc, navigate] = useLocation();
-  const { workspaceName, dialog, openDialog, toast, storageError, writesBlocked, startFresh, notify, role, setRole, actingCreator } = useStore();
+  const [loc] = useLocation();
+  const { workspaceName, dialog, openDialog, toast, storageError, writesBlocked, startFresh, notify, role, actingCreator } = useStore();
   const crumbs = useCrumbs();
   const close = () => openDialog(null);
   const nav = role === 'creator' ? CREATOR_NAV : BRAND_NAV;
-  const switchRole = (r: Role) => { if (r === role) return; setRole(r); navigate(r === 'creator' ? '/creator' : '/'); };
-  const you = role === 'creator' ? actingCreator.name : CURRENT_USER;
   return (
     <div className="app-shell">
       <aside className="sidebar">
         <Link className="brand" href={role === 'creator' ? '/creator' : '/'} aria-label="nano.club home"><Logo /></Link>
         <p className="brand-tag">Small creators. Real numbers.</p>
-        <div className="role-switch" role="group" aria-label="View as">
-          <button className={role === 'brand' ? 'on' : ''} aria-pressed={role === 'brand'} onClick={() => switchRole('brand')} data-testid="role-brand">Brand</button>
-          <button className={role === 'creator' ? 'on' : ''} aria-pressed={role === 'creator'} onClick={() => switchRole('creator')} data-testid="role-creator">Creator</button>
+        <div className="ws-card">
+          {role === 'brand'
+            ? <><span className="ws-mark" aria-hidden="true">{workspaceName.slice(0, 1).toUpperCase()}</span><span className="ws-text"><b>{workspaceName}</b><small>Brand account</small></span></>
+            : <><CreatorAvatar creator={actingCreator} size={32} /><span className="ws-text"><b>@{actingCreator.handle}</b><small>Creator account</small></span></>}
         </div>
-        <p className="role-hint">{role === 'brand' ? `Viewing as ${workspaceName}` : `Viewing as @${actingCreator.handle}`}</p>
-        {role === 'brand' ? (
-          <div className="ws-switch-wrap">
-            <span className="ws-mark" aria-hidden="true">{workspaceName.slice(0, 1).toUpperCase()}</span>
-            <select id="ws-switch" className="ws-switch" aria-label="Workspace" value="main" onChange={() => undefined}>
-              <option value="main">{workspaceName}</option>
-            </select>
-            <ChevronsUpDown size={14} aria-hidden="true" />
-          </div>
-        ) : (
-          <div className="ws-switch-wrap"><CreatorAvatar creator={actingCreator} size={26} /><span className="ws-switch" style={{ fontWeight: 600 }}>@{actingCreator.handle}</span></div>
-        )}
         <nav className="nav-list" aria-label="Primary">
           {nav.filter((n) => n.href !== '/settings').map((item) => {
             const Icon = item.icon;
@@ -165,8 +190,7 @@ export function Shell({ children }: { children: ReactNode }) {
             return <Link key={item.href} href={item.href} className={`nav-link ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined}><Icon />{item.label}</Link>;
           })}
         </nav>
-        <div className="side-footer">{role === 'creator' ? <CreatorAvatar creator={actingCreator} size={28} /> : <Avatar name={you} />}<span>{you}</span>
-          {role === 'brand' && <Link href="/settings" className={`settings-link ${loc === '/settings' ? 'active' : ''}`} aria-label="Settings" title="Settings"><Settings size={15} /></Link>}</div>
+        <div className="side-footer"><AccountMenu up className="acct-side" /></div>
       </aside>
       <div className="main-area">
         <PrototypeRibbon />
@@ -181,8 +205,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <div className="top-right">
             {role === 'brand' && <CreateMenu />}
             <button className="button ghost icon-btn" aria-label="Notifications" onClick={() => notify('No notifications. nano.club does not send notifications in this prototype.')}><Bell /></button>
-            {role === 'creator' ? <CreatorAvatar creator={actingCreator} size={28} /> : <Avatar name={you} />}
-            <span className="user-name">{you}</span>
+            <AccountMenu className="acct-top" />
           </div>
         </header>
         {storageError && (
